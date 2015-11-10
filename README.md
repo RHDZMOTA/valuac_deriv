@@ -10,6 +10,9 @@ Para más información sobre el concurso CIFI, consultar el siguiente link: http
 Información y literatura relevante sobre la teoría desarrollada en este proyecto puede ser vista en:
 https://drive.google.com/open?id=0B1mUVJC7-ZYrS0hEdzktX3BzUG8
 
+Para la redacción de aspectos teóricos:
+https://www.sharelatex.com/project/56426fe6c8a1b56a3a0a1dd2 
+
 Los integrantes del equipo son:
 * Luis Anotnio Cortez Virgen
 * Daniela Guerra Alcalá
