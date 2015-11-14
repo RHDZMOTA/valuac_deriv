@@ -19,23 +19,21 @@ Los integrantes del equipo son:
 * Rodrigo Hernández Mota
 * Raúl Romero Barragán
 
-# 	cambio prueba de danny_hermosa 
-
 Profesor: Juan Diego Sánchez Torres
 
 Comandos relevantes:
 
-    *cd "carpeta"
-    *cd ..
-    *git clone
-    *git config {user.name, user.email} "desc"
+    cd "carpeta"
+    cd ..
+    git clone
+    git config {user.name, user.email} "desc"
 
 Procedimiento:
 
-    *0 git remote add origin URL hace referencia a una carpeta en linea
-    *1 git pull origin master
-    *2 hacer cambios pertinentes
-    *3 git add
-    *4 git commit -m "desc"
-    *5 git push origin master
+    0 git remote add origin URL hace referencia a una carpeta en linea
+    1 git pull origin master
+    2 hacer cambios pertinentes
+    3 git add
+    4 git commit -m "desc"
+    5 git push origin master
 
