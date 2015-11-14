@@ -1,4 +1,4 @@
-# valuac_deriv
+﻿# valuac_deriv
 Valuación de derivados financieros y metodologías de simulación. 
 
 valuac_deriv tiene como función recopilar los códigos utilizados para el segundo proyecto de finanzas cuantitativas del departamento de Matmáticas y Físca del Instituto Tecnológico y de Estudios Superiores de Occidente (ITESO). 
@@ -18,6 +18,8 @@ Los integrantes del equipo son:
 * Daniela Guerra Alcalá
 * Rodrigo Hernández Mota
 * Raúl Romero Barragán
+
+# 	cambio prueba de danny_hermosa 
 
 Profesor: Juan Diego Sánchez Torres
 
