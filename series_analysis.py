@@ -1,4 +1,4 @@
-#-*- coding: cp1252 -*-
+#-*- coding: UTF-8 -*-
 __author__ = 'Rodrigo'
 
 import datetime as dat
@@ -11,7 +11,7 @@ import pandas as pd
 Se definen las variables de tiempo.
 t0  : tiempo inicial
 t   : tiempo final
-delt: dif. en dÌas entre t0 y t
+delt: dif. en d√≠as entre t0 y t
 """
 t_fina = dat.datetime.today()
 t_inic = t_fina
@@ -24,20 +24,20 @@ print(t)
 
 # DATOS
 """
-Se obtiene la informaciÛn de la p·gina quandl.
+Se obtiene la informaci√≥n de la p√°gina quandl.
 usdmxn : dataframe de precios
 """
 url = "https://www.quandl.com/api/v3/datasets/BNP/USDMXN.csv?start_date="+t0
 usdmxn  = pd.read_csv(url).sort("Date")
 print(usdmxn[["Date","USD/MXN"]][0:5])
 
-# GR¡FICA
+# GR√ÅFICA
 """
-Se realiza la gr·fica de serie de tiempo para la paridad USD-MXN
+Se realiza la gr√°fica de serie de tiempo para la paridad USD-MXN
 
 """
 fig = plt.figure()             # se define una figura
-axes = fig.add_subplot(111)    # se define que se trabajar· con una subfig
+axes = fig.add_subplot(111)    # se define que se trabajar√° con una subfig
 axes.plot(range(0,len(usdmxn["Date"])),usdmxn["USD/MXN"])
 axes.set_title("Tipo de cambio - USD/MXN")
 axes.set_xlabel("Periodo de tiempo")
