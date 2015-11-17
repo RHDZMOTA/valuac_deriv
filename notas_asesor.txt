@@ -1,0 +1,17 @@
+# Notas para trabajo
+ASESORÍAS CON EL DR. JUAN DIEGO
+
+## Sobre Heston
+Se utilizará un sistema de ede determinado por Heston en el cual se relacione el cambio de la paridad peso dolar 
+con la tasa de interés lr local (modelo CIR para tasa o V.). En este modelo se utiliza la volatilidad del tipo de cambio
+como un proceso estocástico con su propia volatilidad (la tasa libre de riesgo). Se propone utilizar modelo garch
+para la volatilidad de la risk free si se identifica que la varianza no es constante. 
+
+Es recomendable realizar pureba de hipótesis de independencia entre la tasa local risk free y el tipo de cambio.
+(agregar correlación, dispersión etc.)
+
+## Sobre otras cosas
+- No es necesario realizar la demostraci´n de máx. verosimilitud, sin embargo, sería conveniente. 
+- Utilizar método numérico si es necesario (recomendable). 
+- Para la simulación MCMC buscar "probability transition matrix". Jusificar en marco teórico. 
+
