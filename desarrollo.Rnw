@@ -109,33 +109,38 @@ mean_rendi <- rt + sd_rendi ^ 2/2
 time <- 1:length(precios)
 
 
-precios.temporal <- matrix(, nrow = nrow(precios), ncol = ncol(precios)+1)
+precios.temporal <- matrix(0, nrow = nrow(precios), ncol = ncol(precios)+1)
 precios.temporal[, 1] <- c(1:nrow(precios))
 precios.temporal[, 2:(ncol(precios)+1)] <- precios[,1:ncol(precios)]
 precios.temporal <- as.data.frame(precios.temporal)
 colnames(precios.temporal) <- c('Tiempo', c(n_acciones))
 precios.temporal <- as.data.frame(precios.temporal)
 
-medias_rend <- s0 * exp(mean_rendi*time) 
-sigmas_rend  <- sqrt(s0 ^ 2 * exp(2*mean_rendi*time) * (exp(time * sd_rendi ^ 2) - 1))
+rend2       <- log(precios[2:nrow(precios), ] / precios[1:(nrow(precios) - 1), ])
+medias_rend <- mean(rend2)
+sigmas_rend  <- sd(rend2)
 
-medias_precios <- matrix( , nrow = nrow(precios), ncol = ncol(precios)+1)
-sigmas_precios <- matrix( , nrow = nrow(precios), ncol = ncol(precios)+1)
+medias_precios <- matrix(0, nrow = nrow(precios), ncol = ncol(precios)+1)
+sigmas_precios <- matrix(0, nrow = nrow(precios), ncol = ncol(precios)+1)
 medias_precios[,1] <- 1:nrow(precios)
 sigmas_precios[,1] <- 1:nrow(precios)
 colnames(medias_precios) <- c('Tiempo', n_acciones)
 colnames(sigmas_precios) <- c('Tiempo', n_acciones)
+for(i in 1:nrow(precios)){
 
-medias_precios[, 2] <- s0 * exp(i * medias_rend)
-sigmas_precios[, 2] <- sqrt(s0^2 * exp(2 * i * medias_rend) *(exp(time*sigmas_rend^2)-1))
+  medias_precios[i,2:(ncol(precios)+1) ] <- precios[1, ] * exp(i * medias_rend) 
+  sigmas_precios[i,2:(ncol(precios)+1) ] <- sqrt(precios[1, ]^2 * exp(2 * i * medias_rend) *
+                                                   (exp(i*sigmas_rend^2)-1))
 
+
+}
 
 desv_est <- list()
 pollo <- list()
 
 for(k in 1:3){
-  sigma_pos <- as.data.frame(medias_precios[, 2] + k*sigmas_precios[, 2])
-  sigma_neg <- as.data.frame(medias_precios[, 2] - k*sigmas_precios[, 2])
+  sigma_pos <- as.data.frame(medias_precios + k*sigmas_precios)
+  sigma_neg <- as.data.frame(medias_precios - k*sigmas_precios)
   sigma_pos[,1] <- 1:nrow(precios)
   sigma_neg[,1] <- 1:nrow(precios)
   pollo[[1]] <- sigma_pos
@@ -171,7 +176,6 @@ soltera[[k]] <- ggplot()+geom_line(data=precios.temporal, aes(x=Tiempo,
   geom_line(data=desv_est[[3]][[2]], aes(x=Tiempo,y=desv_est[[3]][[2]][ ,1+k]) ,
             size=0.5,colour='black')+xlab("Periodo de tiempo")+ylab(n_acciones[k])
 soltera[[k]]
-
 
 @
 
