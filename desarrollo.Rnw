@@ -3,137 +3,23 @@
 
 
 <<nacciones, message=FALSE, warning=FALSE>>=
+setwd("~/GitHub/valuac_deriv")
 
+# obtención de datos
+source("nacciones_n.R")
 
-# Nombrar acciones de inter\'es - EDITAR{nacciones}
-n_acciones <- c("USD/MXN")
-nacciones <- c("USDMXN")
-n <- length(nacciones)
-
-# Intervalo de tiempo para los datos - EDITAR{inter_t}
-inter_t <- c(toString(as.Date(as.numeric(Sys.Date())-365)),  
-             toString(as.Date(Sys.Date())))
-
-
-getSymbols(n_acciones, src = 'oanda', from = inter_t[1], to = inter_t[2])
-
-# Matriz de precios  - EDITAR{m_precios}
-m_precios <- cbind(USDMXN)
-nr <- nrow(m_precios)
-nc <- ncol(m_precios)
-
-# Determinar si hay NA y filtro autom\'atico
-cont_na <- 0 #numeric(n)
-i <- 1;j <- 1;
-while(i <= nr){
-  if(is.na(m_precios[i,j])==T){
-    cont_na <- cont_na + 1
-    i <- i + 1
-    j <- 1
-  } else {
-    if(j == nc){
-      j <- 1
-      i <- i + 1
-    }else{
-      j = j + 1
-    }
-  }
-}
-
-if(cont_na > 0){
-m_fprecios <- matrix( , ncol=nc, nrow = nr - cont_na) # matriz de precios filtrados
-  i <- 1; j <- 1; k <- 1;
-  while(i <= nr){
-    if(is.na(m_precios[i,j])==T){
-      i <- i + 1
-      j <- 1
-    } else {
-      if(j == nc){
-        m_fprecios[k, ] <- m_precios[i, ]
-        i <- i + 1
-        j <- 1
-        k <- k + 1
-      }else{
-        j = j + 1
-      }
-    }
-  }
-  colnames(m_fprecios) <- n_acciones
-}
-
-if(cont_na > 0){
-  precios <- as.matrix(m_fprecios)
-} else {
-  precios <- as.matrix(m_precios)
-}
-
-# Descargar precios a hoja de c\'alculo .csv {0,1} - EDITAR{flag}
-flag <- 0
-if (flag == 1){
-  write.csv(precios, 'datos1.csv')
-}
-
-# Verificar ausencia de NA
-contador <- numeric(ncol(precios))
-for (i in 1:nrow(precios)){
-  for (j in 1:ncol(precios)){
-    if (is.na(precios[i,j])==T){
-      contador[j] <- contador[j] + 1
-    }
-  }
-}
-
-#cat("\014")
-cont_na
-contador
-
-# Borrar objetos excepto {precios, }
-rm(list=setdiff(ls(), c("precios", "nacciones","n_acciones")))
-colnames(precios) <- n_acciones
-rownames(precios) <- nrow(c(1:nrow(precios)))
-@
-
-[AGREGAR REFERENCIA DE MODELOS DE ECUACIONES DEL MARQUIRRI TEÓRICO]
-
-
-<<simula, message=FALSE, warning=FALSE>>=
-
-#Browniando
-rendi <- log(precios[2:nrow(precios)] / precios[1:(nrow(precios) - 1)])
-s0 <- precios[1]
-sd_rendi <- sd(rendi)
-
-rt <- mean(rendi) - var(rendi)/2
-mean_rendi <- rt + sd_rendi ^ 2/2
-
-time <- 1:length(precios)
-
-
-precios.temporal <- matrix(0, nrow = nrow(precios), ncol = ncol(precios)+1)
-precios.temporal[, 1] <- c(1:nrow(precios))
-precios.temporal[, 2:(ncol(precios)+1)] <- precios[,1:ncol(precios)]
-precios.temporal <- as.data.frame(precios.temporal)
-colnames(precios.temporal) <- c('Tiempo', c(n_acciones))
-precios.temporal <- as.data.frame(precios.temporal)
-
-rend2       <- log(precios[2:nrow(precios), ] / precios[1:(nrow(precios) - 1), ])
-medias_rend <- mean(rend2)
-sigmas_rend  <- sd(rend2)
-
+# vector de medias y sigmas 
 medias_precios <- matrix(0, nrow = nrow(precios), ncol = ncol(precios)+1)
 sigmas_precios <- matrix(0, nrow = nrow(precios), ncol = ncol(precios)+1)
 medias_precios[,1] <- 1:nrow(precios)
 sigmas_precios[,1] <- 1:nrow(precios)
 colnames(medias_precios) <- c('Tiempo', n_acciones)
 colnames(sigmas_precios) <- c('Tiempo', n_acciones)
-for(i in 1:nrow(precios)){
 
-  medias_precios[i,2:(ncol(precios)+1) ] <- precios[1, ] * exp(i * medias_rend) 
-  sigmas_precios[i,2:(ncol(precios)+1) ] <- sqrt(precios[1, ]^2 * exp(2 * i * medias_rend) *
-                                                   (exp(i*sigmas_rend^2)-1))
+medias_precios[ ,2] <- precios[1,1] * exp(1:nrow(precios) * medias_rend)
+sigmas_precios[ ,2] <- sqrt(precios[1,1]^2 * exp(2 * (1:nrow(precios)) * medias_rend) *
+                                                   (exp((1:nrow(precios))*sigmas_rend^2)-1))
 
-
-}
 
 desv_est <- list()
 pollo <- list()
@@ -149,7 +35,6 @@ for(k in 1:3){
   desv_est[[k]] <- pollo
 }
 names(desv_est) <- c("1sd","2sd","3sd")
-
 medias_precios <- as.data.frame(medias_precios)
 sigmas_precios <- as.data.frame(sigmas_precios)
 
@@ -157,25 +42,28 @@ sigmas_precios <- as.data.frame(sigmas_precios)
 # source("multiplot.R")
 
 
-soltera <- list()
+
 k <- 1
-soltera[[k]] <- ggplot()+geom_line(data=precios.temporal, aes(x=Tiempo, 
-      y=precios.temporal[,1+k]),size = 0.8,colour='red')+
-  geom_line(data=medias_precios, aes(x=Tiempo, y=medias_precios[,1+k]),size=0.7, 
-            colour='dark blue')+
-  geom_line(data=desv_est[[1]][[1]], aes(x=Tiempo,y=desv_est[[1]][[1]][ ,1+k]) ,
-            size=0.5,colour='dark green')+
-  geom_line(data=desv_est[[1]][[2]], aes(x=Tiempo,y=desv_est[[1]][[2]][ ,1+k]) ,
-            size=0.5,colour='dark green')+
-  geom_line(data=desv_est[[2]][[1]], aes(x=Tiempo,y=desv_est[[2]][[1]][ ,1+k]) ,
-            size=0.5,colour='dark red')+
-  geom_line(data=desv_est[[2]][[2]], aes(x=Tiempo,y=desv_est[[2]][[2]][ ,1+k]) ,
-            size=0.5,colour='dark red')+
-  geom_line(data=desv_est[[3]][[1]], aes(x=Tiempo,y=desv_est[[3]][[1]][ ,1+k]) ,
-            size=0.5,colour='black')+
-  geom_line(data=desv_est[[3]][[2]], aes(x=Tiempo,y=desv_est[[3]][[2]][ ,1+k]) ,
-            size=0.5,colour='black')+xlab("Periodo de tiempo")+ylab(n_acciones[k])
-soltera[[k]]
+soltera <- ggplot()+geom_line(data=precios.temporal, aes(x=precios.temporal$Tiempo, 
+      y=precios.temporal[,1+k],colour='Tipo de cambio USD/MXN'),size = 0.8)+
+  geom_line(data=medias_precios, aes(x=Tiempo, y=medias_precios[,1+k]
+                                     ,colour='Media'),size=0.7)+
+  geom_line(data=desv_est[[1]][[1]], aes(x=Tiempo,y=desv_est[[1]][[1]][ ,1+k]
+                                         ,colour='+1sigma'),size=0.5)+
+  geom_line(data=desv_est[[1]][[2]], aes(x=Tiempo,y=desv_est[[1]][[2]][ ,1+k]
+                                         ,colour='-1sigma'),size=0.5)+
+#   geom_line(data=desv_est[[2]][[1]], aes(x=Tiempo,y=desv_est[[2]][[1]][ ,1+k]
+#                                          ,colour='+2sigma'),size=0.5)+
+#   geom_line(data=desv_est[[2]][[2]], aes(x=Tiempo,y=desv_est[[2]][[2]][ ,1+k]
+#                                          ,colour='-2sigma'),size=0.5)+
+#   geom_line(data=desv_est[[3]][[1]], aes(x=Tiempo,y=desv_est[[3]][[1]][ ,1+k]
+#                                          ,colour='+3sigma'),size=0.5)+
+#   geom_line(data=desv_est[[3]][[2]], aes(x=Tiempo,y=desv_est[[3]][[2]][ ,1+k]
+#                                          ,colour='-3sigma'),size=0.5)+
+   labs(color="Legend text", title = "Tipo de cambio USD/MXN - mov. geom. brown.",
+         x = "Fechas", y = "Precio",
+        scale_color_manual(values=c("blue", "orange","dark red","dark red")))
+soltera
 
 @
 
