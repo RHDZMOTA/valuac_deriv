@@ -1,0 +1,5 @@
+%% No modificar el comando \Sexpr
+\Sexpr{set_parent('master_code.Rnw')}
+
+
+
