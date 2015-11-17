@@ -1,0 +1,128 @@
+\documentclass[10pt,twoside,onecolumn]{book}
+
+\usepackage{amsmath}
+\usepackage[latin1]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{enumerate} 
+\usepackage{indentfirst}
+\usepackage{ragged2e}
+\usepackage{float}
+\usepackage[margin=2cm]{geometry}
+\usepackage{subfig}
+\usepackage{adjustbox}
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+
+
+\parindent 0em
+\parskip 2ex
+\pagestyle{fancy}
+\lfoot{Ingeniería Financiera}
+\cfoot{\thepage}
+\rfoot{I T E S O}
+\pretolerance=8000
+\tolerance=8000
+\setlength{\textfloatsep}{5pt}
+
+\begin{document}
+
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+
+\center % Center everything on the page
+ 
+%----------------------------------------------------------------------------------------
+%	HEADING SECTIONS
+%----------------------------------------------------------------------------------------
+
+\textsc{\LARGE ITESO, Universidad Jesuita de Guadalajara}\\[2cm] % Name of your university/college
+\textsc{\Large Ingeniería Financiera}\\[1cm] % Major heading such as course name
+\textsc{\large Finanzas Cuantitativas}\\[1cm] % Minor heading such as course title
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\HRule \\[2cm]
+{ \huge \bfseries Proyecto 01: Modelación e interpretación de modelos estocásticos aplicados a series de precios}\\[2cm] % Title of your document
+\HRule \\[2cm]
+ 
+%----------------------------------------------------------------------------------------
+%	AUTHOR SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Autores:}\\
+Luis  \textsc{Cortez Virgen}\\ % Your name
+Daniela \textsc{Guerra Alcalá} \\
+Rodrigo \textsc{Hernández Mota}\\
+Raúl \textsc{Romero Barragán}
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Supervisor:} \\
+Dr. Juan Diego \textsc{Sánchez Torres} % Supervisor's Name
+\end{flushright}
+\end{minipage}\\[2cm]
+
+% If you don't want a supervisor, uncomment the two lines below and remove the section above
+%\Large \emph{Author:}\\
+%John \textsc{Smith}\\[3cm] % Your name
+
+%----------------------------------------------------------------------------------------
+
+%	DATE SECTION
+%----------------------------------------------------------------------------------------
+
+
+
+
+{\large \today}\\[1cm] % Date, change the \today to a set date if you want to be precise
+
+%----------------------------------------------------------------------------------------
+%	LOGO SECTION
+%----------------------------------------------------------------------------------------
+
+\includegraphics[height=3.4cm]{figure/iteso.jpg}% Include a department/university logo - this will require the graphicx package
+ 
+%----------------------------------------------------------------------------------------
+
+  \vfill % Fill the rest of the page with whitespace
+
+\end{titlepage}
+\tableofcontents
+
+
+\part{Introducción y descripción de objetivos}
+<<gene, child='generalidades.Rnw'>>=
+
+@
+
+\part{Marco teórico}
+<<intro, child='marco_teorico.Rnw'>>=
+
+@
+
+\part{Desarrollo}
+<<desar, child='desarrollo.Rnw'>>=
+
+@
+
+\part{Conclusiones}
+<<concu, child='conclusiones.Rnw'>>=
+
+@
+
+\part{Bibliografía}
+<<P06, child='bibliografia.Rnw'>>=
+
+@
+
+\end{document}
