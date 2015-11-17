@@ -61,8 +61,8 @@ soltera <- ggplot()+geom_line(data=precios.temporal, aes(x=precios.temporal$Tiem
 #   geom_line(data=desv_est[[3]][[2]], aes(x=Tiempo,y=desv_est[[3]][[2]][ ,1+k]
 #                                          ,colour='-3sigma'),size=0.5)+
    labs(color="Legend text", title = "Tipo de cambio USD/MXN - mov. geom. brown.",
-         x = "Fechas", y = "Precio",
-        scale_color_manual(values=c("blue", "orange","dark red","dark red")))
+         x = "Fechas", y = "Precio")
+        #scale_color_manual(values=c("blue", "orange","dark red","dark red")))
 soltera
 
 @
