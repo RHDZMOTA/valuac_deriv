@@ -29,6 +29,9 @@ usdmxn : dataframe de precios
 """
 url = "https://www.quandl.com/api/v3/datasets/BNP/USDMXN.csv?start_date="+t0
 usdmxn  = pd.read_csv(url).sort("Date")
+rend = usdmxn["USD/MXN"][0:len(usdmxn)]
+# usdmxn["USD/MXN"][1:len(usdmxn)]/usdmxn["USD/MXN"][0:(len(usdmxn)-1)]
+usdmxn["media"] = usdmxn["USD/MXN"][0]
 print(usdmxn[["Date","USD/MXN"]][0:5])
 
 # GRÁFICA
