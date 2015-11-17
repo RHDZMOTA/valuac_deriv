@@ -98,6 +98,11 @@ Dr. Juan Diego \textsc{Sánchez Torres} % Supervisor's Name
 
 \end{titlepage}
 \tableofcontents
+<<packages, message=FALSE, warning=FALSE>>=
+require(quantmod)
+library(fBasics)
+library(ggplot2)
+@
 
 
 \part{Introducción y descripción de objetivos}
