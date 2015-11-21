@@ -154,7 +154,7 @@ qu<-function(u3){
 #Selección de nums aleatorios (y). Se eligen los que cumplen alpha, se adecúan más.
 #Los que "pasen la prueba" serán la estimación para el siguiente día.
 
-estimadas <- function(e)#d=un vector de aleatorios, e = ultimo dato
+estimadas <- function(e){#d=un vector de aleatorios, e = ultimo dato
 y_esti<-numeric()
 equis <- runif(deseos)
 for (i in 1:deseos){
@@ -164,7 +164,7 @@ for (i in 1:deseos){
   y_esti[i]<-e+(d-e)*(equis[i]<alpha)
   
 }
-
+}
 # ce <- numeric()
 # a <- 0
 # for(i in 1:length(y_esti)){
