@@ -9,6 +9,7 @@ library(ggplot2)
 # https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=1996-03-26&end_date=2012-08-14
 inter_t <- c(toString(as.Date(as.numeric(Sys.Date())-365)),  
              toString(as.Date(Sys.Date())))
+
 url <- paste("https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=",
              inter_t[1],"&end_date=",inter_t[2])
 download.file(url,"USDMXN.csv")
@@ -172,3 +173,10 @@ for (i in 1:deseos){
 #     ce[a]  <- i
 #   }
 # }
+
+#Función RDRL. Generará aleatorios y discriminará.
+
+
+
+
+
