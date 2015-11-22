@@ -2,6 +2,7 @@
 library(ggplot2)
 library(Quandl)
 library(reshape2)
+library(timeSeries)
 source("funciones.R")
 
 # descarga y obtención de datos -------------------------------------------
@@ -83,7 +84,7 @@ FA <- cbind(interv,freq_acum)
 plot(interv,freq_acum,type="l")
 
 
-deseos <- 20
+deseos <- 100
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
@@ -121,7 +122,7 @@ freq_rel<-freq_rel/sum(freq_rel)
 
 #Generación de simulaciones (trayectorias)
 #El primer paso de las trayectorias depende del último dato real. Los demás dependen del simulado anterior.
-days<-30  #días hasta el vencimiento o pago de proveedores :()
+days<-90  #días hasta el vencimiento o pago de proveedores :()
 
 y_esti<-matrix(0, nrow=deseos, ncol=days)
 y_esti[, 1] <- RDRL(rend$Value[n-1],deseos, x, fest, interv, freq_rel, freq_acum)
@@ -141,6 +142,8 @@ s_estif <- as.data.frame(s_estif)
 
 s_estiff <- cbind(1:nrow(t(s_estif)), t(s_estif))
 s_estiff <- as.data.frame(s_estiff)
+
+
 # gráficas ----------------------------------------------------------------
 
 
@@ -183,5 +186,14 @@ colnames(russo) <- nombres2
 
 russa <- melt(russo, id.vars = 'ID')
 colnames(russa) <- c('ID', 'Valores', 'Valor')
-ggplot(russa,aes(ID, Valor, color=Valores))+geom_line()
+
+v_esp<-colMeans(s_estiff[,2:(ncol(s_estiff))])
+v_esp <- as.data.frame(v_esp)
+v_esp[, 2] <- (nrow(usdmxn)+1):(deseos+nrow(usdmxn))
+colnames(v_esp) <- c('Promedios', 'ID')
+
+ggplot()+geom_line(data = russa,aes(ID, Valor, color=Valores))+
+  geom_line(data = v_esp, aes(x=ID, y=Promedios), size=1) 
+
+
 
