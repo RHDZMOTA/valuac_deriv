@@ -73,13 +73,12 @@ inversa <- function(u){
   return(y)
 }
 
-deseos <- 10000
+deseos <- 1000
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
   y[i] <- inversa(u)
 }
-
 
 plot(1:deseos,y)
 hist(y)
@@ -113,7 +112,6 @@ plot(x,fest,type="l")
 
 
 # función objetivo y función propuesta  -----------------------------------
-
 
 #Creación de función de probabilidad para la gráfica kernel.
 f<-function(u2){
@@ -177,19 +175,12 @@ RDRL <- function(e,deseos1){#d=un vector de aleatorios, e = ultimo dato
   }
   return(y_esti)
 }
-# ce <- numeric()
-# a <- 0
-# for(i in 1:length(y_esti)){
-#   if(is.na(y_esti[i])==T){
-#     a <- a+1
-#     ce[a]  <- i
-#   }
-# }
+
 
 #Generación de simulaciones (trayectorias)
 #El primer paso de las trayectorias depende del último dato real. Los demás dependen del simulado anterior.
-days<-10  #días hasta el vencimiento o pago de proveedores :()
-deseos<-5
+days<-30  #días hasta el vencimiento o pago de proveedores :()
+deseos<-20
 
 y_esti<-matrix(0, nrow=deseos, ncol=days)
 y_esti[, 1] <- RDRL(rend$Value[n-1],deseos)
@@ -224,10 +215,15 @@ dd<-as.data.frame(dd)
 
 russo[, 2] <- dd
 
-russa <- ggplot(data = russo)+geom_line(aes(x=russo[,2], y=russo[, 1]))
-russia <- ggplot(data=s_estiff)
-for(i in 3:ncol(russo)){
-  #russa <- russa + geom_line(aes(x=russo[,2], y=russo[, i]),colour = "dark red")
-  russia <- russia + geom_line(aes(x=s_estiff[,1], y=s_estiff[,i-1]),colour = "dark blue")
-  
+#Gráfico de solo las trayectorias
+nombres <- numeric()
+nombres[1] <- 'ID'
+
+for(i in 2:ncol(s_estiff)){
+  nombres[i] <- paste('Trayectoria', i-1)
 }
+
+colnames(s_estiff) <- nombres
+russia <- melt(s_estiff, id.vars = "ID")
+colnames(russia) <- c('ID', 'Trayectorias', 'Valor')
+ggplot(russia,aes(ID,Valor,color=Trayectorias))+geom_line()
