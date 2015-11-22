@@ -15,6 +15,7 @@ url <- paste("https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_dat
 download.file(url,"USDMXN.csv")
 usdmxn <-  read.csv(file="USDMXN.csv",header=TRUE,sep=",",na.strings=TRUE)
 usdmxn$Date <- as.Date(usdmxn$Date)
+usdmxn[,1:4] <- usdmxn[nrow(usdmxn):1,1:4]
 
 ggplot(data=usdmxn, aes(x=Date, y=Rate))+geom_line()
 
@@ -110,6 +111,10 @@ for(i in 1:(n-1)){
 plot(x,fest,type="l")
 #plot(density(rend$Value))
 
+
+# función objetivo y función propuesta  -----------------------------------
+
+
 #Creación de función de probabilidad para la gráfica kernel.
 f<-function(u2){
  nacho2<-1
@@ -137,6 +142,7 @@ for (j in 1:(n-1)){
 }
 freq_rel<-freq_rel/sum(freq_rel)
 
+#Función que arroja la probabilidad de la función por partes del hist.
 qu<-function(u3){
   nacho3<-1
   if (u3>=max(interv) | u3<=min(interv))
@@ -151,19 +157,25 @@ qu<-function(u3){
   return(prob)
 }
 
+
+
+# función general ---------------------------------------------------------
+
+
 #Selección de nums aleatorios (y). Se eligen los que cumplen alpha, se adecúan más.
 #Los que "pasen la prueba" serán la estimación para el siguiente día.
-
-estimadas <- function(e){#d=un vector de aleatorios, e = ultimo dato
-y_esti<-numeric()
-equis <- runif(deseos)
-for (i in 1:deseos){
-  d<-y[i]
-  e<-rend$Value[n-1]
-  alpha<-(f(d)*qu(e))/(f(e)*qu(d))
-  y_esti[i]<-e+(d-e)*(equis[i]<alpha)
-  
-}
+#Función RDRL. Generará aleatorios y discriminará.
+RDRL <- function(e,deseos1){#d=un vector de aleatorios, e = ultimo dato
+  y_esti<-numeric()
+  equis <- runif(deseos1)
+  for (i in 1:deseos1){
+    y[i]<-inversa(runif(1))
+    d<-y[i]
+    #e<-rend$Value[n-1]
+    alpha<-(f(d)*qu(e))/(f(e)*qu(d))
+    y_esti[i]<-e+(d-e)*(equis[i]<alpha)
+  }
+  return(y_esti)
 }
 # ce <- numeric()
 # a <- 0
@@ -174,9 +186,48 @@ for (i in 1:deseos){
 #   }
 # }
 
-#Función RDRL. Generará aleatorios y discriminará.
+#Generación de simulaciones (trayectorias)
+#El primer paso de las trayectorias depende del último dato real. Los demás dependen del simulado anterior.
+days<-10  #días hasta el vencimiento o pago de proveedores :()
+deseos<-5
+
+y_esti<-matrix(0, nrow=deseos, ncol=days)
+y_esti[, 1] <- RDRL(rend$Value[n-1],deseos)
+s_esti<-matrix(0, nrow=deseos, ncol=days)
+s_esti[, 1] <- usdmxn$Rate[n]*exp(y_esti[, 1])
+for(i in 1:deseos){
+  for(j in 2:days){
+    y_esti[i,j] <- RDRL(y_esti[i,j-1],1)
+    s_esti[i,j] <- s_esti[i, j-1]*exp(y_esti[i,j])
+  }
+}
+
+s_esti <- as.data.frame(s_esti)
+
+s_estif <- cbind(rep(usdmxn$Rate[n],deseos), s_esti)
+s_estif <- as.data.frame(s_estif)
+
+s_estiff <- cbind(1:nrow(t(s_estif)), t(s_estif))
+s_estiff <- as.data.frame(s_estiff)
+# gráficas ----------------------------------------------------------------
 
 
+russo <- matrix(NA, nrow=(n+days), ncol = (deseos+2))
+russo[1:n,1] <- usdmxn$Rate
+russo[(n):(n+days),(3:ncol(russo))]<- t(s_estif)
+russo <- as.data.frame(russo)
 
+dd <- as.numeric(usdmxn$Date)
+dd <- c(dd, (dd[n]+1):(dd[n]+days))
+dd <- as.Date(dd)
+dd<-as.data.frame(dd)
 
+russo[, 2] <- dd
 
+russa <- ggplot(data = russo)+geom_line(aes(x=russo[,2], y=russo[, 1]))
+russia <- ggplot(data=s_estiff)
+for(i in 3:ncol(russo)){
+  #russa <- russa + geom_line(aes(x=russo[,2], y=russo[, i]),colour = "dark red")
+  russia <- russia + geom_line(aes(x=s_estiff[,1], y=s_estiff[,i-1]),colour = "dark blue")
+  
+}
