@@ -84,7 +84,7 @@ FA <- cbind(interv,freq_acum)
 plot(interv,freq_acum,type="l")
 
 
-deseos <- 100
+deseos <- 1000
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
@@ -173,8 +173,9 @@ colnames(russia) <- c('ID', 'Trayectorias', 'Valor')
 ggplot(russia,aes(ID,Valor,color=Trayectorias))+geom_line()
 
 #Gráfico de precio original + trayectorias
+#Gráfico de precio original + trayectorias
 nombres2 <- numeric()
-nombres2[1] <- 'Precio original'
+nombres2[1] <- 'Precio_original'
 nombres2[2] <- 'ID'
 
 russo[, 2] <- c(1:nrow(russo))
@@ -187,13 +188,19 @@ colnames(russo) <- nombres2
 russa <- melt(russo, id.vars = 'ID')
 colnames(russa) <- c('ID', 'Valores', 'Valor')
 
-v_esp<-colMeans(s_estiff[,2:(ncol(s_estiff))])
+v_esp<-colMeans(t(russo[,3:(ncol(s_estiff))]),na.rm = FALSE)
 v_esp <- as.data.frame(v_esp)
-v_esp[, 2] <- (nrow(usdmxn)+1):(deseos+nrow(usdmxn))
+v_esp[, 2] <- (1:nrow(russo))
 colnames(v_esp) <- c('Promedios', 'ID')
 
-ggplot()+geom_line(data = russa,aes(ID, Valor, color=Valores))+
-  geom_line(data = v_esp, aes(x=ID, y=Promedios), size=1) 
+ggplot()+
+  geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
+  geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
+  geom_line(data=russo, aes(ID, Precio_original), color="dark orange")
 
+#Media que no daba extraño
 
-
+#Media y ver reduccion de varianza
+#cOMO PROPONER UN PRECIO STRIKE
+#Valuacion para tipo de cambio 
+#Aumentar simulaciones
