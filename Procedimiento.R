@@ -84,7 +84,7 @@ FA <- cbind(interv,freq_acum)
 plot(interv,freq_acum,type="l")
 
 
-deseos <- 1000
+deseos <- 200
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
@@ -130,7 +130,7 @@ s_esti<-matrix(0, nrow=deseos, ncol=days)
 s_esti[, 1] <- usdmxn$Rate[n]*exp(y_esti[, 1])
 for(i in 1:deseos){
   for(j in 2:days){
-    y_esti[i,j] <- RDRL(y_esti[i,j-1],1, x, fest, interv, freq_rel, freq_acum)
+    y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],5, x, fest, interv, freq_rel, freq_acum))
     s_esti[i,j] <- s_esti[i, j-1]*exp(y_esti[i,j])
   }
 }
