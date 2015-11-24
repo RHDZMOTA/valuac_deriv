@@ -13,7 +13,11 @@ inter_t <- c(toString(as.Date(as.numeric(Sys.Date())-365)),
 
 url <- paste("https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=",
              inter_t[1],"&end_date=",inter_t[2])
+url2 <- paste("https://www.quandl.com/api/v3/datasets/BDM/SF43878.csv?start_date=",
+              inter_t[2],"&end_date=",inter_t[2])
 download.file(url,"USDMXN.csv")
+download.file(url2,"tiie91.csv")
+tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
 usdmxn <-  read.csv(file="USDMXN.csv",header=TRUE,sep=",",na.strings=TRUE)
 usdmxn$Date <- as.Date(usdmxn$Date)
 usdmxn[,1:4] <- usdmxn[nrow(usdmxn):1,1:4]
@@ -28,34 +32,6 @@ rend <- rend[2:n,]
 
 ggplot(data=rend, aes(x=Date, y=Value))+geom_line()
 
-
-# determinación de q ------------------------------------------------------
-# determinación del histograma de frecuencias para rend. log
-
-hist(rend$Value)
-ks.test(rend$Value, pnorm(n-1))
-
-clases <- round(sqrt(n-1))
-v_min <- min(rend$Value) 
-v_max <- max(rend$Value)
-rango <- v_max - v_min
-delta <- rango / clases
-
-#histograma de frec, acumulada
-interv <- numeric()
-interv[1] <- v_min
-for(i in 2:(clases+1)){
-  interv[i] <- interv[i-1] + delta
-}
-
-freq_acum <- numeric()
-for(i in 1:length(interv)){
-  freq_acum[i] <- sum(rend$Value<interv[i])/(n-1)
-}
-
-FA <- cbind(interv,freq_acum)
-plot(interv,freq_acum,type="l")
-
 # determinación de q ------------------------------------------------------
 # determinación del histograma de frecuencias para rend. log
 
@@ -84,7 +60,7 @@ FA <- cbind(interv,freq_acum)
 plot(interv,freq_acum,type="l")
 
 
-deseos <- 200
+deseos <- 100
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
@@ -107,7 +83,7 @@ for(i in 1:(n-1)){
 }
 
 plot(x,fest,type="l")
-#plot(density(rend$Value))
+plot(density(rend$Value))
 
 #Creación del histograma de frecuencias y función de probabilidad con el hist.
 freq_rel<-numeric(clases)
@@ -120,6 +96,8 @@ for (j in 1:(n-1)){
 }
 freq_rel<-freq_rel/sum(freq_rel)
 
+
+# Simulaciones  -----------------------------------------------------------
 #Generación de simulaciones (trayectorias)
 #El primer paso de las trayectorias depende del último dato real. Los demás dependen del simulado anterior.
 days<-90  #días hasta el vencimiento o pago de proveedores :()
@@ -130,7 +108,7 @@ s_esti<-matrix(0, nrow=deseos, ncol=days)
 s_esti[, 1] <- usdmxn$Rate[n]*exp(y_esti[, 1])
 for(i in 1:deseos){
   for(j in 2:days){
-    y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],5, x, fest, interv, freq_rel, freq_acum))
+    y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],10, x, fest, interv, freq_rel, freq_acum))
     s_esti[i,j] <- s_esti[i, j-1]*exp(y_esti[i,j])
   }
 }
@@ -204,3 +182,73 @@ ggplot()+
 #cOMO PROPONER UN PRECIO STRIKE
 #Valuacion para tipo de cambio 
 #Aumentar simulaciones
+
+
+# Determinación de función de ganancias -----------------------------------
+ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
+r <- tiie91$Value[1]/100
+s0 <- s_estiff[1,2]
+k  <- s0*exp(r*days/252)
+sigma <- sd(rend$Value)*sqrt(252)
+d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
+d2 <- d1-sigma*sqrt(days/252)
+Nd1 <- pnorm(d1)
+Nd2 <- pnorm(d2)
+ct <- s0*Nd1-k*exp(-r*days/252)*Nd2 # unidades: pesos por dólar
+#library(fOptions); GBSOption(TypeFlag = "c", S=s0, X=k, Time=days/252, r=r, b=r, sigma=sigma )
+nocional <- 10000 # unidades (dólares que se quieren comprar)
+ganan <- nocional * (ST - (k + ct))
+
+
+# histograma de ganancias -------------------------------------------------
+#hist(ganan)
+ks.test(ganan, pnorm(deseos))
+
+clases <- round(sqrt(deseos))
+v_min <- min(ganan) 
+v_max <- max(ganan)
+rango <- v_max - v_min
+delta <- rango / clases
+
+#histograma de frec, acumulada
+interv <- numeric()
+interv[1] <- v_min
+for(i in 2:(clases+1)){
+  interv[i] <- interv[i-1] + delta
+}
+
+freq_acum <- numeric()
+for(i in 1:length(interv)){
+  freq_acum[i] <- sum(ganan<interv[i])/(deseos)
+}
+
+FA <- cbind(interv,freq_acum)
+plot(interv,freq_acum,type="l")
+
+# Valor en riesgo
+nc <- 0.99
+VaR <- inversa(1-nc, interv, freq_acum)
+
+# Prob. de ganar
+prob_perder<-inversa(0, freq_acum, interv)
+prob_ganar<-1-prob_perder
+
+
+# kernel para ganancias ---------------------------------------------------
+
+desv_est <- sd(ganan)
+
+h <- (4*desv_est^5/(3*(deseos)))^(1/5)
+
+x <- seq((v_min-desv_est),(v_max+desv_est),rango/10000)
+
+fest <- numeric(length(x))
+for(i in 1:(deseos)){
+  fest <- fest + kernel(ganan[i], deseos+1, h, x)
+}
+
+plot(x,fest,type="l")
+plot(density(ganan))
+
+ganancia_esp <- fest%*%x/sum(fest)
+
