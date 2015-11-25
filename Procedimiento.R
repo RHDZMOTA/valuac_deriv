@@ -269,3 +269,8 @@ ganancia_esp <- fest%*%x/sum(fest) - nocional
 # plot(k,ct,type="l")
 # plot(k,(k + ct),type="l")
 # plot(k,ganancia,type="l")
+
+#Vamos comparando con el modelo de black scholes para el tipo de cambio. Este pedo es usando dle max(ST - k, 0) 
+#donde ST es el calculado por nuestras simulaciones
+#Comparamos también el resultado esperado de nuestras simulaciones con el de MexDer
+#Conviene mejor experimentar y comparar que shiny. Perro Diablo.
