@@ -10,11 +10,11 @@ source("funciones.R")
 # https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=1996-03-26&end_date=2012-08-14
 inter_t <- c(toString(as.Date(as.numeric(Sys.Date())-365)),  
              toString(as.Date(Sys.Date())))
-
+ayer <- toString(as.Date(as.numeric(Sys.Date())-1))
 url <- paste("https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=",
              inter_t[1],"&end_date=",inter_t[2])
 url2 <- paste("https://www.quandl.com/api/v3/datasets/BDM/SF43878.csv?start_date=",
-              inter_t[2],"&end_date=",inter_t[2])
+              ayer,"&end_date=",ayer)
 download.file(url,"USDMXN.csv")
 download.file(url2,"tiie91.csv")
 tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
@@ -188,7 +188,7 @@ ggplot()+
 ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
 r <- tiie91$Value[1]/100
 s0 <- s_estiff[1,2]
-k  <- s0*exp(r*days/252)
+k  <- 15#s0*exp(r*days/252)
 sigma <- sd(rend$Value)*sqrt(252)
 d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
 d2 <- d1-sigma*sqrt(days/252)
@@ -250,5 +250,22 @@ for(i in 1:(deseos)){
 plot(x,fest,type="l")
 plot(density(ganan))
 
-ganancia_esp <- fest%*%x/sum(fest)
+ganancia_esp <- fest%*%x/sum(fest) - nocional
 
+
+# optimización ------------------------------------------------------------
+
+ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
+r <- tiie91$Value[1]/100
+s0 <- s_estiff[1,2]
+k  <- seq(0,20,0.0001)
+sigma <- sd(rend$Value)*sqrt(252)
+d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
+d2 <- d1-sigma*sqrt(days/252)
+Nd1 <- pnorm(d1)
+Nd2 <- pnorm(d2)
+ct <- s0*Nd1-k*exp(-r*days/252)*Nd2
+ganancia <- nocional * (mean(ST) - (k + ct))
+plot(k,ct,type="l")
+plot(k,(k + ct),type="l")
+plot(k,ganancia,type="l")
