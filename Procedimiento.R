@@ -252,20 +252,20 @@ plot(density(ganan))
 
 ganancia_esp <- fest%*%x/sum(fest) - nocional
 
-
-# optimización ------------------------------------------------------------
-
-ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
-r <- tiie91$Value[1]/100
-s0 <- s_estiff[1,2]
-k  <- seq(0,20,0.0001)
-sigma <- sd(rend$Value)*sqrt(252)
-d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
-d2 <- d1-sigma*sqrt(days/252)
-Nd1 <- pnorm(d1)
-Nd2 <- pnorm(d2)
-ct <- s0*Nd1-k*exp(-r*days/252)*Nd2
-ganancia <- nocional * (mean(ST) - (k + ct))
-plot(k,ct,type="l")
-plot(k,(k + ct),type="l")
-plot(k,ganancia,type="l")
+# 
+# # optimización ------------------------------------------------------------
+# 
+# ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
+# r <- tiie91$Value[1]/100
+# s0 <- s_estiff[1,2]
+# k  <- seq(0,20,0.0001)
+# sigma <- sd(rend$Value)*sqrt(252)
+# d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
+# d2 <- d1-sigma*sqrt(days/252)
+# Nd1 <- pnorm(d1)
+# Nd2 <- pnorm(d2)
+# ct <- s0*Nd1-k*exp(-r*days/252)*Nd2
+# ganancia <- nocional * (mean(ST) - (k + ct))
+# plot(k,ct,type="l")
+# plot(k,(k + ct),type="l")
+# plot(k,ganancia,type="l")
