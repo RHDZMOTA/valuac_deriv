@@ -1,36 +1,9 @@
-# aplicación shiny para proyecto de finanzas cuantitativas
-
+# aplicaciÃ³n shiny para proyecto de finanzas cuantitativas
 library(shiny)
 library(ggplot2)
-library(Quandl)
-source("funciones.R")
 
-# descarga y obtención de datos -------------------------------------------
-
-# https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=1996-03-26&end_date=2012-08-14
-inter_t <- c(toString(as.Date(as.numeric(Sys.Date())-365)),  
-             toString(as.Date(Sys.Date())))
-ayer <- toString(as.Date(as.numeric(Sys.Date())-1))
-url <- paste("https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=",
-             inter_t[1],"&end_date=",inter_t[2])
-url2 <- paste("https://www.quandl.com/api/v3/datasets/BDM/SF43878.csv?start_date=",
-              ayer,"&end_date=",ayer)
-download.file(url,"USDMXN.csv")
-download.file(url2,"tiie91.csv")
-tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
-usdmxn <-  read.csv(file="USDMXN.csv",header=TRUE,sep=",",na.strings=TRUE)
-usdmxn$Date <- as.Date(usdmxn$Date)
-usdmxn[,1:4] <- usdmxn[nrow(usdmxn):1,1:4]
-
-#ggplot(data=usdmxn, aes(x=Date, y=Rate))+geom_line()
-
-# rendimientos logarítmicos
-n <- nrow(usdmxn) 
-rend <- as.data.frame(usdmxn)
-rend$Value[2:n] <- log(usdmxn[2:n,2]/usdmxn[1:(n-1),2])
-rend <- rend[2:n,]
-
-#ggplot(data=rend, aes(x=Date, y=Value))+geom_line()
+source("datos.R")
+source("proced.R")
 
 
 # Aplicación Shiny --------------------------------------------------------
@@ -41,28 +14,44 @@ ui <- fluidPage(
   titlePanel("Análisis de coberturas financieras"),
   # información general y descripción
   mainPanel(
-    p("Aplicación diseñada como apoyo en el cálculo de derivados 
-      financieros y sus distintos precios de ejercicio recomendados."),
+    p("Aplicación diseñada para analizar distintas estrategias financieras para cobertura 
+      de tipo de cambio (MXN/USD) mediante el uso de los derivados: futuros/forwards y opciones."),
     h4("Por: Luis Cortez Virgen, Daniela Guerra Alcalá, Rodrigo Hernández Mota y Raúl Romero Barragán"),
-    p("Finanzas Cuantitativas"),
-    p(),
-    p('perri')
-    ),
+    p("Asignatura: Finanzas cuantitativas"),
+    h3("Descripción general"),
+    p("A continuación se presenta la serie de tiempo diaria de la paridad de la moneda mexicana y el
+      dólar estadunidense con 365 datos históricos. La metodología empleada se basa en calcular 
+      trayectorias mediante la determinación de la distribución real del rendimiento logarítmico  
+      de los datos para así obtener una buena estimación del tipo de cambio a 90 días. Con esta 
+      información se evalúa el rendimiento de estrategias propuestas con opciones tipo call y 
+      futuros/forward."),
+    p('[agergar párrafo]') ),
+  # determinación arbitraria del precio strike
+  sliderInput(inputId = "strike",
+              label="Precio strike (k)",
+              value=16, min=15, max=25),
   plotOutput(outputId="gr")
   
 )
 
 
 server <-  function(input, output){
+  #k <- reactive({input$strike^1})
   output$gr <- renderPlot({
-    ggplot(data=usdmxn, aes(x=Date, y=Rate))+geom_line()
-  }
-  )
+    #hist(seq(1,1000,input$strike))
+    #k <- get(input$strike);
+    ggplot(environment=environment())+
+      geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
+      geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
+      geom_line(data = russo, aes(ID, Precio_original), color="dark orange")+
+      geom_hline(aes_string(yintercept=input$strike),color="dark red",size=0.7)
+  })
+    
 }
 
 shinyApp(ui = ui, server = server)
 
-#Gráfica con simulaciones
-#Volver el K dinámico
+#GrÃ¡fica con simulaciones
+#Volver el K dinÃ¡mico
 #Presentar resultados 
-#Mostrar análisis para una K arbitrari (probabilidad)
+#Mostrar anÃ¡lisis para una K arbitrari (probabilidad)
