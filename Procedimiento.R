@@ -15,9 +15,13 @@ url <- paste("https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_dat
              inter_t[1],"&end_date=",inter_t[2])
 url2 <- paste("https://www.quandl.com/api/v3/datasets/BDM/SF43878.csv?start_date=",
               ayer,"&end_date=",ayer)
+url3 <- paste("https://www.quandl.com/api/v3/datasets/FRBP/TBILL_MN.csv?start_date=",
+              ayer,"&end_date=",ayer)
 download.file(url,"USDMXN.csv")
 download.file(url2,"tiie91.csv")
+download.file(url3,"tbill91.csv")
 tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
+tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
 usdmxn <-  read.csv(file="USDMXN.csv",header=TRUE,sep=",",na.strings=TRUE)
 usdmxn$Date <- as.Date(usdmxn$Date)
 usdmxn[,1:4] <- usdmxn[nrow(usdmxn):1,1:4]
@@ -189,16 +193,25 @@ ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
 r <- tiie91$Value[1]/100
 s0 <- s_estiff[1,2]
 k  <- 15#s0*exp(r*days/252)
+kf <- s0*exp(r*days/252)
 sigma <- sd(rend$Value)*sqrt(252)
 d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
 d2 <- d1-sigma*sqrt(days/252)
-Nd1 <- pnorm(d1)
-Nd2 <- pnorm(d2)
-ct <- s0*Nd1-k*exp(-r*days/252)*Nd2 # unidades: pesos por dólar
+Nd1<- pnorm(d1)
+Nd2<- pnorm(d2)
+ct_bs <- s0*Nd1-k*exp(-r*days/252)*Nd2 # unidades: pesos por dólar
+ct_rdrl <- mean(pmax(ST - k,0)*exp(-r*days/252))
+rd <- tiie91$Value[1]/100
+rf <- tbill91$Value[1]/100
+d1 <- (log(s0/k)+(rd-rf+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
+d2 <- d1-sigma*sqrt(days/252)
+Nd1<- pnorm(d1)
+Nd2<- pnorm(d2)
+ct_tc <- s0*exp(-rf*days/252)*Nd1-k*exp(-rd*days/252)*Nd2
 #library(fOptions); GBSOption(TypeFlag = "c", S=s0, X=k, Time=days/252, r=r, b=r, sigma=sigma )
 nocional <- 10000 # unidades (dólares que se quieren comprar)
-ganan <- nocional * (ST - (k + ct))
-
+ganan <- nocional * (pmax(ST - k,0) - ct*exp(r*days/252))
+gananf<- nocional * (ST - kf)
 
 # histograma de ganancias -------------------------------------------------
 #hist(ganan)
