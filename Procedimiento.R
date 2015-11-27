@@ -8,7 +8,8 @@ source("datos.R")
 # descarga y obtención de datos -------------------------------------------
 
 # https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=1996-03-26&end_date=2012-08-14
-
+tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
+tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
 
 ggplot(data=usdmxn, aes(x=Date, y=Rate))+geom_line()
 
@@ -18,7 +19,15 @@ ggplot(data=rend, aes(x=Date, y=Value))+geom_line()
 # determinación de q ------------------------------------------------------
 # determinación del histograma de frecuencias para rend. log
 
-hist(rend$Value)
+#hist(rend$Value)
+
+rend <- as.data.frame(rend)
+
+ggplot(data=rend, aes(x=Value)) + 
+   geom_histogram(fill=I('dark red'), col=I('white')) +
+     labs(title='Rendimientos', 
+          y='Frecuencia')
+
 ks.test(rend$Value, pnorm(n-1))
 
 clases <- round(sqrt(n-1))
@@ -39,19 +48,23 @@ for(i in 1:length(interv)){
   freq_acum[i] <- sum(rend$Value<interv[i])/(n-1)
 }
 
-FA <- cbind(interv,freq_acum)
-plot(interv,freq_acum,type="l")
+FA <- as.data.frame(cbind(interv,freq_acum))
+#plot(interv,freq_acum,type="l")
+ggplot(data = FA, aes(x = interv, y = freq_acum)) + geom_line()
 
 
-deseos <- 20
+deseos <- 100
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
   y[i] <- inversa(u, interv, freq_acum)
 }
 
-plot(1:deseos,y)
-hist(y)
+#plot(1:deseos,y)
+#hist(y)
+
+qplot(y, geom = 'histogram')
+
 
 
 desv_est <- sd(rend$Value)
@@ -65,7 +78,10 @@ for(i in 1:(n-1)){
   fest <- fest + kernel(rend$Value[i], n, h, x)
 }
 
-plot(x,fest,type="l")
+#plot(x,fest,type="l")
+wd <- as.data.frame(cbind(x,fest))
+ggplot(data = wd, aes(x = x, y = fest)) + geom_line()
+
 plot(density(rend$Value))
 
 #Creación del histograma de frecuencias y función de probabilidad con el hist.
@@ -83,7 +99,7 @@ freq_rel<-freq_rel/sum(freq_rel)
 # Simulaciones  -----------------------------------------------------------
 #Generación de simulaciones (trayectorias)
 #El primer paso de las trayectorias depende del último dato real. Los demás dependen del simulado anterior.
-days<-20  #días hasta el vencimiento o pago de proveedores :()
+days<-90  #días hasta el vencimiento o pago de proveedores :()
 
 y_esti<-matrix(0, nrow=deseos, ncol=days)
 y_esti[, 1] <- RDRL(rend$Value[n-1],deseos, x, fest, interv, freq_rel, freq_acum)
@@ -91,7 +107,7 @@ s_esti<-matrix(0, nrow=deseos, ncol=days)
 s_esti[, 1] <- usdmxn$Rate[n]*exp(y_esti[, 1])
 for(i in 1:deseos){
   for(j in 2:days){
-    y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],3, x, fest, interv, freq_rel, freq_acum))
+    y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],10, x, fest, interv, freq_rel, freq_acum))
     s_esti[i,j] <- s_esti[i, j-1]*exp(y_esti[i,j])
   }
 }
@@ -167,7 +183,7 @@ colnames(v_esp) <- c('Promedios', 'ID')
 ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
 r <- tiie91$Value[1]/100
 s0 <- s_estiff[1,2]
-k  <- 15#s0*exp(r*days/252)
+k  <- 16.8#s0*exp(r*days/252)
 kf <- s0*exp(r*days/252)
 sigma <- sd(rend$Value)*sqrt(252)
 d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
@@ -191,7 +207,7 @@ gananf<- nocional * (ST - kf)
 
 # histograma de ganancias -------------------------------------------------
 #hist(ganan)
-ks.test(ganan, pnorm(deseos))
+normita <- ks.test(ganan, pnorm(deseos))
 
 clases <- round(sqrt(deseos))
 v_min <- min(ganan) 
@@ -211,16 +227,17 @@ for(i in 1:length(interv)){
   freq_acum[i] <- sum(ganan<interv[i])/(deseos)
 }
 
-FA <- cbind(interv,freq_acum)
-plot(interv,freq_acum,type="l")
+FA <- as.data.frame(cbind(interv,freq_acum))
+#plot(interv,freq_acum,type="l")
+ggplot(data = FA, aes(x = interv, y = freq_acum)) + geom_line()
 
 # Valor en riesgo
 nc <- 0.99
 VaR <- inversa(1-nc, interv, freq_acum)
 
 # Prob. de ganar
-prob_perder<-inversa(0, freq_acum, interv)
-prob_ganar<-1-prob_perder
+prob_perder <- inversa(0, freq_acum, interv)
+prob_ganar <- 1-prob_perder
 
 
 # kernel para ganancias ---------------------------------------------------
@@ -263,6 +280,11 @@ ganancia_esp <- fest%*%x/sum(fest) - nocional
 #donde ST es el calculado por nuestras simulaciones
 #Comparamos también el resultado esperado de nuestras simulaciones con el de MexDer
 #Conviene mejor experimentar y comparar que shiny. Perro Diablo.
+
+ggplot()+
+  geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
+  geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
+  geom_line(data=russo, aes(ID, Precio_original), color="dark orange")
 
 ggplot()+
   geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
