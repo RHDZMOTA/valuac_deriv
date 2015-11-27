@@ -2,68 +2,160 @@
 \Sexpr{set_parent('master_code.Rnw')}
 
 
-<<nacciones, message=FALSE, warning=FALSE>>=
-setwd("~/GitHub/valuac_deriv")
+<<source_inutl, warning=FALSE, message=FALSE>>=
 
-# obtención de datos
-source("nacciones_n.R")
-
-# vector de medias y sigmas 
-medias_precios <- matrix(0, nrow = nrow(precios), ncol = ncol(precios)+1)
-sigmas_precios <- matrix(0, nrow = nrow(precios), ncol = ncol(precios)+1)
-medias_precios[,1] <- 1:nrow(precios)
-sigmas_precios[,1] <- 1:nrow(precios)
-colnames(medias_precios) <- c('Tiempo', n_acciones)
-colnames(sigmas_precios) <- c('Tiempo', n_acciones)
-
-medias_precios[ ,2] <- precios[1,1] * exp(1:nrow(precios) * medias_rend)
-sigmas_precios[ ,2] <- sqrt(precios[1,1]^2 * exp(2 * (1:nrow(precios)) * medias_rend) *
-                                                   (exp((1:nrow(precios))*sigmas_rend^2)-1))
-
-
-desv_est <- list()
-pollo <- list()
-
-for(k in 1:3){
-  sigma_pos <- as.data.frame(medias_precios + k*sigmas_precios)
-  sigma_neg <- as.data.frame(medias_precios - k*sigmas_precios)
-  sigma_pos[,1] <- 1:nrow(precios)
-  sigma_neg[,1] <- 1:nrow(precios)
-  pollo[[1]] <- sigma_pos
-  pollo[[2]] <- sigma_neg
-  names(pollo) <- c('más',"menos")
-  desv_est[[k]] <- pollo
+# Función Inversa ---------------------------------------------------------
+# agregar descrip
+# u: número con distribución uniforme
+# interv: límite inferior de las clases del histograma de frecuencia
+#freq_acum: vector de frecuencia acumulada
+inversa <- function(u, interv, freq_acum){
+  nacho <- 1
+  
+  while(u>freq_acum[nacho]){
+    nacho <- nacho + 1
+  }
+  
+  # esto es interpolación para sacar la inversa (o algo así). :)
+  #sólo se tienen algunos puntos del histograma de frec. acumulado (límite), s
+  #si cae dentro del intervalo no sabemos, para eso es interpolación
+  #las y´s (num de deseos) representan valores aleatorios que se distribuyen como el hist de frec. normal.
+  m <- (interv[nacho]-interv[nacho-1])/(freq_acum[nacho]-freq_acum[nacho-1])
+  b <- interv[nacho-1]-m*freq_acum[nacho-1]
+  y <- m*u+b
+  return(y)
 }
-names(desv_est) <- c("1sd","2sd","3sd")
-medias_precios <- as.data.frame(medias_precios)
-sigmas_precios <- as.data.frame(sigmas_precios)
-
-# setwd("~/GitHub/finanzas_cuantitativas")
-# source("multiplot.R")
 
 
+# Función Kernel Gaussiano--------------------------------------------------
+# agregar descrp. kernel individual de cada dato 
+# equis: dato de los registros empíricos
+# n: tamaño de  muestra
+# h: intervalo (definido)
+# x: secuencia que representa el eje x
+kernel <- function(equis, n, h, x){
+  kero <- exp(-(x-equis)^2/(2*h^2))/(sqrt(2*pi)*(n-1)*h)
+  return(kero)
+}
 
-k <- 1
-soltera <- ggplot()+geom_line(data=precios.temporal, aes(x=precios.temporal$Tiempo, 
-      y=precios.temporal[,1+k],colour='Tipo de cambio USD/MXN'),size = 0.8)+
-  geom_line(data=medias_precios, aes(x=Tiempo, y=medias_precios[,1+k]
-                                     ,colour='Media'),size=0.7)+
-  geom_line(data=desv_est[[1]][[1]], aes(x=Tiempo,y=desv_est[[1]][[1]][ ,1+k]
-                                         ,colour='+1sigma'),size=0.5)+
-  geom_line(data=desv_est[[1]][[2]], aes(x=Tiempo,y=desv_est[[1]][[2]][ ,1+k]
-                                         ,colour='-1sigma'),size=0.5)+
-#   geom_line(data=desv_est[[2]][[1]], aes(x=Tiempo,y=desv_est[[2]][[1]][ ,1+k]
-#                                          ,colour='+2sigma'),size=0.5)+
-#   geom_line(data=desv_est[[2]][[2]], aes(x=Tiempo,y=desv_est[[2]][[2]][ ,1+k]
-#                                          ,colour='-2sigma'),size=0.5)+
-#   geom_line(data=desv_est[[3]][[1]], aes(x=Tiempo,y=desv_est[[3]][[1]][ ,1+k]
-#                                          ,colour='+3sigma'),size=0.5)+
-#   geom_line(data=desv_est[[3]][[2]], aes(x=Tiempo,y=desv_est[[3]][[2]][ ,1+k]
-#                                          ,colour='-3sigma'),size=0.5)+
-   labs(color="Legend text", title = "Tipo de cambio USD/MXN - mov. geom. brown.",
-         x = "Fechas", y = "Precio")
-        #scale_color_manual(values=c("blue", "orange","dark red","dark red")))
-soltera
+
+# Función Densidad Objetivo Estimada --------------------------------------
+# agregar descrip.
+# u2: número aleatorio con distribución unfirme
+# x: secuencia que representa el eje x
+#fest: vector que contiene la frecuencia generada por el kernel
+f<-function(u2,x,fest){
+  nacho2<-1
+  if (u2>=max(x) | u2<=min(x))
+    prob<-0.00000000000001
+  else {
+    while(u2>=x[nacho2])
+      nacho2<-nacho2+1
+    m <- (fest[nacho2]-fest[nacho2-1])/(x[nacho2]-x[nacho2-1])
+    b <- fest[nacho2-1]-m*x[nacho2-1]
+    y <- m*u2+b
+    prob<-y/sum(fest)
+  }
+  return(prob)
+}
+
+
+# Función Densidad Propuesta ----------------------------------------------
+#agregar descrip
+#u3: número aleatorio con distribución uniforme
+#interv: límite inferior de las clases del histograma de frecuencia
+#freq_rel: vector que contiene la frecuencia relativa de la variable 
+qu<-function(u3,interv,freq_rel){
+  nacho3<-1
+  if (u3>=max(interv) | u3<=min(interv))
+    prob<-0.000000000000000001
+  else {
+    while(u3>=interv[nacho3])
+      nacho3<-nacho3+1
+    #       if(nacho3 >= length(interv))
+    #         nacho3 <- length(interv)
+    prob<-freq_rel[nacho3-1]#/sum(datoshrv)
+  }
+  return(prob)
+}
+
+
+# Función Metropolis Hasting ----------------------------------------------
+#agregar descrip.
+#Selección de nums aleatorios (y). Se eligen los que cumplen alpha, se adecúan más.
+#Los que "pasen la prueba" serán la estimación para el siguiente día.
+#Función RDRL. Generará aleatorios y discriminará.
+#e: dato anterior (de referencia para simular)
+#deseos1: número de trayectorias simuladas (Deseadas) 
+RDRL <- function(e,deseos1, x, fest, interv, freq_rel, freq_acum){#d=un vector de aleatorios, e = ultimo dato
+  y_esti<-numeric()
+  equis <- runif(deseos1)
+  for (i in 1:deseos1){
+    y[i]<-inversa(runif(1),interv, freq_acum)
+    d<-y[i]
+    #e<-rend$Value[n-1]
+    alpha<-(f(d,x,fest)*qu(e, interv,freq_rel))/(f(e,x,fest)*qu(d, interv,freq_rel))
+    y_esti[i]<-e+(d-e)*(equis[i]<alpha)
+  }
+  return(y_esti)
+}
+
+
+
+# intervalo de interés (1 año : 365 días)
+inter_t <- c(toString(as.Date(as.numeric(Sys.Date())-365)),  
+             toString(as.Date(Sys.Date())))
+# el día de ayer
+ayer <- toString(as.Date(as.numeric(Sys.Date())-1))
+
+# URL para descargar datos
+url <- paste("https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=",
+             inter_t[1],"&end_date=",inter_t[2])
+url2 <- paste("https://www.quandl.com/api/v3/datasets/BDM/SF43878.csv?start_date=",
+              ayer,"&end_date=",ayer)
+url3 <- paste("https://www.quandl.com/api/v3/datasets/USTREASURY/YIELD.csv?start_date",
+              ayer,"&end_date=",ayer)
+
+# descargar csv's 
+# download.file(url,"USDMXN.csv")
+# download.file(url2,"tiie91.csv")
+# download.file(url3,"tbill91.csv")
+
+# leer variables de interés 
+# tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
+# tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
+
+# manipulación de datos y determinación de rendimientos logarítmicos
+usdmxn <-  read.csv(file="USDMXN.csv",header=TRUE,sep=",",na.strings=TRUE)
+usdmxn$Date <- as.Date(usdmxn$Date)
+usdmxn[,1:4] <- usdmxn[nrow(usdmxn):1,1:4]
+n <- nrow(usdmxn) 
+rend <- as.data.frame(usdmxn)
+rend$Value[2:n] <- log(usdmxn[2:n,2]/usdmxn[1:(n-1),2])
+rend <- rend[2:n,]
+@
+
+
+Iniciando con el procedimiento, se obtienen los datos de la página \emph{Quandl}. 
+<<obtencion, message=FALSE, warning=FALSE>>=
+library(ggplot2)
+library(Quandl)
+library(reshape2)
+library(timeSeries)
+# https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=1996-03-26&end_date=2012-08-14
+tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
+tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
+
+ggplot(data=usdmxn, aes(x=Date, y=Rate))+geom_line()
+
+
+ggplot(data=rend, aes(x=Date, y=Value))+geom_line()
 
 @
+Específicamente y como referencia para poder hacer un cálculo posterior, se obtuvieron el último dato de la TIIE91 y los TBills a 91 días. Dichos datos son:
+
+\begin{itemize}
+  \item TIIE91: \Sexpr{tiie91$Value[1]} 
+  \item TBILL 91: \Sexpr{tbill91$X3.Mo[1]}
+\end{itemize}
 
