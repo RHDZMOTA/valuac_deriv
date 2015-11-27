@@ -1,5 +1,35 @@
 %% No modificar el comando \Sexpr
 \Sexpr{set_parent('master_code.Rnw')}
 
+\begin{thebibliography}{9}
+\bibliographystyle{plain}
 
+\bibitem{Construccion de Kernels}  
+Luis Rodríguez Ojeda.(S.F). Construcción de Kernels y funciones de densidad de probabilidad. En {\url{https://www.dspace.espol.edu.ec/bitstream/123456789/25019/1/CONSTRUCCION_DE_KERNELS_Y_FUNCIONES_DE_DENSIDAD_DE_PROBABILIDAD.pdf}} [consultado el $20$ de Noviembre de $2015$] 
 
+\bibitem{Latex}  
+S.A.(Noviembre $2015$). LaTeX/Mathematics. En {\url{https://en.wikibooks.org/wiki/LaTeX/Mathematics#List_of_Mathematical_Symbols}} [consultado el $19$ de Noviembre de $2015$] 
+
+\bibitem{MARKOV CHAIN MONTE CARLO METHOD}  
+Mantas LANDAUSKAS, Eimutis VALAKEVICIUS.($2011$). Kaunas University of Technology, Faculty of Fundamental Sciences, MODELLING OF STOCK PRICES BY THE MARKOV CHAIN MONTE CARLO METHOD. En {\url{ https://www.mruni.eu/upload/iblock/b0a/Landauskas.pdf}} [consultado el $19$ de Noviembre de $2015$]
+  
+\bibitem{MCMC Methods}  
+Michael Johannes and Nicholas Polson.($8$ de Mayo $2002$). MCMC Methods for Financial Econometrics. En {\url{http://down.cenet.org.cn/upfile/36/2004101145121196.pdf}} [consultado el $18$ de Noviembre de $2015$]
+  
+\bibitem{Modelos estocasticos de tasas de interes}  
+J. Sebastián Palacio Montoya, .(Noviembre $2009$). Análisis, Descripción y Simulación de Modelos Estocásticos de Tasas de Interés. En {\url{https://repository.eafit.edu.co/xmlui/bitstream/handle/10784/4604/2120AnalisisDescripcion_SimulacionTasasInteres.pdf?sequence=1&isAllowed=y}} [consultado el $18$ de Noviembre de $2015$]
+  
+\bibitem{Monte Carlo with R}  
+Christian P.Robert, George Casella.(S.F). Introducing Monte Carlo Methods with R. En {\url{https://drive.google.com/drive/folders/0B1mUVJC7-ZYrS0hEdzktX3BzUG8}} [consultado el $20$ de Noviembre de $2015$]
+  
+\bibitem{MonteCarlo MCMC}  
+Conchi Ausin.(Noviembre $2012$). Métodos de cadenas de Markov Monte
+Carlo. En {\url{http://halweb.uc3m.es/esp/Personal/personas/causin/esp/2012-2013/SMB/Tema8.pdf}} [consultado el $16$ de Noviembre de $2015$]
+
+\bibitem{Github beamer poster}  
+Paul Hurley. (Septiembre $2012$) Example of producing Posters using R, LaTex, Beamer and BeamerPoster. En {\url{https://github.com/paulhurleyuk/RBeamerPoster}} [consultado el $26$ de Noviembre de $2015$] 
+  
+\bibitem{Foreign exchange option}  
+Foreign exchange option. ($2015$) En {\url{https://en.wikipedia.org/wiki/Foreign_exchange_option}} [consultado el $21$ de Noviembre de $2015$] 
+
+\end{thebibliography}
