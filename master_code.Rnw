@@ -102,6 +102,9 @@ Dr. Juan Diego \textsc{Sánchez Torres} % Supervisor's Name
 require(quantmod)
 library(fBasics)
 library(ggplot2)
+library(Quandl)
+library(reshape2)
+library(timeSeries)
 @
 
 
