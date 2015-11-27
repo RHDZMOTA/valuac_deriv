@@ -1,5 +1,47 @@
-%% No modificar el comando \Sexpr
-\Sexpr{set_parent('master_code.Rnw')}
+\documentclass{book}
+\usepackage{graphicx}
+\usepackage{amsmath}
 
 
 
+\begin{document}
+
+\section{INTRODUCCI\'ON}
+Dentro de los procesos estoc\'asticos, existen diferentes m\'etodos para calcular la probabilidad de que cierto evento suceda con base en diferentes supuestos y dentro de los mismos procesos estoc\'asticos, existe un tipo de m\'etodo, en el cual el resultado del evento futuro depende del evento inmediatamente anterior; estas son las cadenas de Markov. El ejemplo m\'as trivial para explicar una cadena de Markov es en cual catalogamos el clima en solamente con dos posibles resultados: Que el clima el d\'ia de ma\'nana sea soleado o sea lluvioso, donde la variable independiente ser\'ia el clima el d\'ia de hoy, soleado. Con base en esta informaci\'on (Que es el evento inmediato anterior) tenemos las siguientes probabilidades:
+Probabilidad (Ma\'nana est\'e soleado | Dado que hoy es lluvioso ) = 0.50 Entonces, dado que el d\'ia de ma\'nana puede ser soleado o lluvioso, concluimos que: Probabilidad (Ma\'nana lluvioso | Dado que hoy es lluvioso ) = 0.50 Similarmente: Probabilidad (Ma\'nana lluvioso | Dado que hoy est\'a soleado ) = 0.10 Por lo tanto: Probabilidad (Ma\'nana soleado | Dado que hoy est\'a soleado ) = 0.90
+Las cuatro probabilidades anteriores pueden ser representadas como una matriz de transici\'on, la cual representa las probabilidades de que el clima se mueva de un estado a otro de la siguiente manera:
+
+\begin{center}
+    \begin{tabular}{ | l | l | l | p{5cm} |}
+    \hline
+    Soleado & Lluvioso\\ \hline
+    0.9 & 0.1 & Soleado \\ \hline
+    0.5 & 0.5 & Lluvioso \\  
+    \hline
+    \end{tabular}
+\end{center}
+
+
+Dado los resultados anteriores, podemos hacernos las siguientes preguntas: ??Si el clima est\'a soleado el d\'ia de hoy, cual ser\'a el clima de ma\'nana? -Dado que no sabemos que pasar\'a, lo mejor que podemos decir es que existe una probabilidad de 90 de que est\'e soleado y una probabilidad de 10 de que est\'e lluvioso.
+??Y dentro de dos d\'ias? Si la predicci\'on uno arroja una probabilidad de 90 de que est\'e soleado y 10 lluvioso, dentro de dos d\'ias ser\'a Prob( Soleado dentro de dos d\'ias) = 0.9 0.9 + 0.1 0.5 = 0.86 de igual manera, la probabilidad de que est\'e lluvioso ser\'a Prob( Lluvioso dentro de dos d\'ias) = 0.1 0.5 + 0.9 0.1 = 0.14.
+De este ejemplo es importante rescatar los conceptos b\'asicos de la \'algebra lineal (Matrices de transici\'on) estos calculos corresponden a todas las permutaciones en transiciones de un paso a otro (soleado-a-soleado (SaS), soleado-a-lluvioso (SaL) o lluvioso-a-lluvioso (LaL)) con sus respectivas probabilidades antes calculadas:
+
+
+\includegraphics[width=\textwidth]{transicion}
+
+En la parte inferior de la imagen podemos ver como calcular la probabilidad de un estado futuro, (t+1 o t+2) dadas las probabilidades para cada estado (Soleado o lluvioso) en el tiempo cero (Hoy o t0) como una simple multiplicaci\'on de matrices.
+Si continuamos prediciendo el clima de esta manera, eventualmente nos daremos cuenta de que el dia n de predicci\'on ser\'a con un n muy grande (propongamos 30) y se establece en las siguientes probabilidades "De equilibrio:"
+Prob(Soleado) = 0.833 Prob(Lluvioso) = 0.167
+En otras palabras, podemos decir que para el d\'ia N y para el d\'ia N+1 los pron\'osticos permanecen iguales. De igual manera podemos comprobar que las probabilidades de "Equilibrio" no dependen del clima del d\'ia de hoy, pues tendr\'iamos el mismo pron\'ostico si comenzamos por asumir que el clima del d\'ia es soleado o lluvioso. Prob(Sunny) = 0.833 Prob(Rainy) = 0.167
+El ejemplo anterior solamente funcionar\'a si el estado de transici\'on de las probabilidades satisface diferentes condiciones, pero en este caso solamente enfoquemonos en las caracter\'isticas de esta cadena de markov que cumple con todas las condiciones.
+Entonces, Markov Chain Monte Carlo explota todas las caracter\'isticas de cadenas de markov explicadas anteriormente de la siguiente manera:
+Queremos generar muestras aleatorias de nuestra distribuci\'on objetivo. Cuando entonces identifiquemos la manera de construir una cadena de markov que cumpla con las condiciones como la distribuci\'on de equilibrio de probabilidad que es nuestra distribuci\'on objetivo.
+Si podemos construir dicha cadena, entonces podemos comenzar arbitrariamente desde cualquier punto e ir iterando la cadena de Markov. Eventualmente, las muestras que generamos apareceran como si hubieran sido obtenidas con nuestra distribuci\'on objetivo.
+
+
+\section{OBJETIVO GENERAL}
+Mediante la implementaci\'on de diferentes modelos y con la metodolog\'ia propuesta del tipo Markov-Chain Monte Carlo se pretende estimar ganancias esperadas a obtener al final del ejercicio de una opci\'on tipo call o un contrato futuro. De igual manera, estimar la p\'erdida m\'axima o VaR para cada ejercicio. Por ende, es sencillo conlcuir que el objetivo general del proyecto, que consiste en la modelaci\'on del tipo de cambio, tendr\'a una modelaci\'on m\'as adecuada con el proceso MCMC.
+
+\section{OBJETIVO ESPEC\'IFICO}
+El presente trabajo tiene como finalidad el simular, con base en diferentes modelos (Metropolis-Hastings) trayectorias futuras del tipo de cambio "D\'olar/Peso" con la finalidad de encontrar la posici\'on en tiempo T del precio de ejercicio. De igual manera, se obtendr\'a la probabilidad de ejercer la opci\'on gracias a las trayectorias previamente simuladas.
+\end{document}
