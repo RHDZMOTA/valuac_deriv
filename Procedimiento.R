@@ -4,31 +4,14 @@ library(Quandl)
 library(reshape2)
 library(timeSeries)
 source("funciones.R")
-
+source("datos.R")
 # descarga y obtención de datos -------------------------------------------
 
 # https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=1996-03-26&end_date=2012-08-14
-inter_t <- c(toString(as.Date(as.numeric(Sys.Date())-365)),  
-             toString(as.Date(Sys.Date())))
 
-url <- paste("https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=",
-             inter_t[1],"&end_date=",inter_t[2])
-url2 <- paste("https://www.quandl.com/api/v3/datasets/BDM/SF43878.csv?start_date=",
-              inter_t[2],"&end_date=",inter_t[2])
-download.file(url,"USDMXN.csv")
-download.file(url2,"tiie91.csv")
-tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
-usdmxn <-  read.csv(file="USDMXN.csv",header=TRUE,sep=",",na.strings=TRUE)
-usdmxn$Date <- as.Date(usdmxn$Date)
-usdmxn[,1:4] <- usdmxn[nrow(usdmxn):1,1:4]
 
 ggplot(data=usdmxn, aes(x=Date, y=Rate))+geom_line()
 
-# rendimientos logarítmicos
-n <- nrow(usdmxn) 
-rend <- as.data.frame(usdmxn)
-rend$Value[2:n] <- log(usdmxn[2:n,2]/usdmxn[1:(n-1),2])
-rend <- rend[2:n,]
 
 ggplot(data=rend, aes(x=Date, y=Value))+geom_line()
 
@@ -60,7 +43,7 @@ FA <- cbind(interv,freq_acum)
 plot(interv,freq_acum,type="l")
 
 
-deseos <- 100
+deseos <- 20
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
@@ -100,7 +83,7 @@ freq_rel<-freq_rel/sum(freq_rel)
 # Simulaciones  -----------------------------------------------------------
 #Generación de simulaciones (trayectorias)
 #El primer paso de las trayectorias depende del último dato real. Los demás dependen del simulado anterior.
-days<-90  #días hasta el vencimiento o pago de proveedores :()
+days<-20  #días hasta el vencimiento o pago de proveedores :()
 
 y_esti<-matrix(0, nrow=deseos, ncol=days)
 y_esti[, 1] <- RDRL(rend$Value[n-1],deseos, x, fest, interv, freq_rel, freq_acum)
@@ -108,7 +91,7 @@ s_esti<-matrix(0, nrow=deseos, ncol=days)
 s_esti[, 1] <- usdmxn$Rate[n]*exp(y_esti[, 1])
 for(i in 1:deseos){
   for(j in 2:days){
-    y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],10, x, fest, interv, freq_rel, freq_acum))
+    y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],3, x, fest, interv, freq_rel, freq_acum))
     s_esti[i,j] <- s_esti[i, j-1]*exp(y_esti[i,j])
   }
 }
@@ -171,10 +154,6 @@ v_esp <- as.data.frame(v_esp)
 v_esp[, 2] <- (1:nrow(russo))
 colnames(v_esp) <- c('Promedios', 'ID')
 
-ggplot()+
-  geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
-  geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
-  geom_line(data=russo, aes(ID, Precio_original), color="dark orange")
 
 #Media que no daba extraño
 
@@ -188,17 +167,27 @@ ggplot()+
 ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
 r <- tiie91$Value[1]/100
 s0 <- s_estiff[1,2]
-k  <- s0*exp(r*days/252)
+k  <- 15#s0*exp(r*days/252)
+kf <- s0*exp(r*days/252)
 sigma <- sd(rend$Value)*sqrt(252)
 d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
 d2 <- d1-sigma*sqrt(days/252)
-Nd1 <- pnorm(d1)
-Nd2 <- pnorm(d2)
-ct <- s0*Nd1-k*exp(-r*days/252)*Nd2 # unidades: pesos por dólar
+Nd1<- pnorm(d1)
+Nd2<- pnorm(d2)
+ct_bs <- s0*Nd1-k*exp(-r*days/252)*Nd2 # unidades: pesos por dólar
+ct_rdrl <- mean(pmax(ST - k,0)*exp(-r*days/252))
+rd <- tiie91$Value[1]/100
+rf <- tbill91$X3.Mo[1]/100
+d1 <- (log(s0/k)+(rd-rf+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
+d2 <- d1-sigma*sqrt(days/252)
+Nd1<- pnorm(d1)
+Nd2<- pnorm(d2)
+ct_tc <- s0*exp(-rf*days/252)*Nd1-k*exp(-rd*days/252)*Nd2
+ct <- max(ct_tc,ct_bs,ct_rdrl)
 #library(fOptions); GBSOption(TypeFlag = "c", S=s0, X=k, Time=days/252, r=r, b=r, sigma=sigma )
 nocional <- 10000 # unidades (dólares que se quieren comprar)
-ganan <- nocional * (ST - (k + ct))
-
+ganan <- nocional * (pmax(ST - k,0) - ct*exp(r*days/252))
+gananf<- nocional * (ST - kf)
 
 # histograma de ganancias -------------------------------------------------
 #hist(ganan)
@@ -250,5 +239,34 @@ for(i in 1:(deseos)){
 plot(x,fest,type="l")
 plot(density(ganan))
 
-ganancia_esp <- fest%*%x/sum(fest)
+ganancia_esp <- fest%*%x/sum(fest) - nocional
+
+# 
+# # optimización ------------------------------------------------------------
+# 
+# ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
+# r <- tiie91$Value[1]/100
+# s0 <- s_estiff[1,2]
+# k  <- seq(0,20,0.0001)
+# sigma <- sd(rend$Value)*sqrt(252)
+# d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
+# d2 <- d1-sigma*sqrt(days/252)
+# Nd1 <- pnorm(d1)
+# Nd2 <- pnorm(d2)
+# ct <- s0*Nd1-k*exp(-r*days/252)*Nd2
+# ganancia <- nocional * (mean(ST) - (k + ct))
+# plot(k,ct,type="l")
+# plot(k,(k + ct),type="l")
+# plot(k,ganancia,type="l")
+
+#Vamos comparando con el modelo de black scholes para el tipo de cambio. Este pedo es usando dle max(ST - k, 0) 
+#donde ST es el calculado por nuestras simulaciones
+#Comparamos también el resultado esperado de nuestras simulaciones con el de MexDer
+#Conviene mejor experimentar y comparar que shiny. Perro Diablo.
+
+ggplot()+
+  geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
+  geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
+  geom_line(data=russo, aes(ID, Precio_original), color="dark orange")+
+  geom_hline(aes(yintercept=k,color="precio strike"),size=0.71)
 
