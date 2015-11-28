@@ -1,11 +1,5 @@
-\documentclass{book}
-\usepackage{graphicx}
-\usepackage{amsmath}
-
-
-
-\begin{document}
-
+%% No modificar el comando \Sexpr
+\Sexpr{set_parent('code_master.Rnw')}
 \section{INTRODUCCI\'ON}
 Dentro de los procesos estoc\'asticos, existen diferentes m\'etodos para calcular la probabilidad de que cierto evento suceda con base en diferentes supuestos y dentro de los mismos procesos estoc\'asticos, existe un tipo de m\'etodo, en el cual el resultado del evento futuro depende del evento inmediatamente anterior; estas son las cadenas de Markov. El ejemplo m\'as trivial para explicar una cadena de Markov es en cual catalogamos el clima en solamente con dos posibles resultados: Que el clima el d\'ia de ma\'nana sea soleado o sea lluvioso, donde la variable independiente ser\'ia el clima el d\'ia de hoy, soleado. Con base en esta informaci\'on (Que es el evento inmediato anterior) tenemos las siguientes probabilidades:
 Probabilidad (Ma\'nana est\'e soleado | Dado que hoy es lluvioso ) = 0.50 Entonces, dado que el d\'ia de ma\'nana puede ser soleado o lluvioso, concluimos que: Probabilidad (Ma\'nana lluvioso | Dado que hoy es lluvioso ) = 0.50 Similarmente: Probabilidad (Ma\'nana lluvioso | Dado que hoy est\'a soleado ) = 0.10 Por lo tanto: Probabilidad (Ma\'nana soleado | Dado que hoy est\'a soleado ) = 0.90
@@ -44,4 +38,3 @@ Mediante la implementaci\'on de diferentes modelos y con la metodolog\'ia propue
 
 \section{OBJETIVO ESPEC\'IFICO}
 El presente trabajo tiene como finalidad el simular, con base en diferentes modelos (Metropolis-Hastings) trayectorias futuras del tipo de cambio "D\'olar/Peso" con la finalidad de encontrar la posici\'on en tiempo T del precio de ejercicio. De igual manera, se obtendr\'a la probabilidad de ejercer la opci\'on gracias a las trayectorias previamente simuladas.
-\end{document}
