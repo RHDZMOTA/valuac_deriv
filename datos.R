@@ -32,3 +32,4 @@ n <- nrow(usdmxn)
 rend <- as.data.frame(usdmxn)
 rend$Value[2:n] <- log(usdmxn[2:n,2]/usdmxn[1:(n-1),2])
 rend <- rend[2:n,]
+
