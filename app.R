@@ -1,57 +1,72 @@
-# aplicaciÃ³n shiny para proyecto de finanzas cuantitativas
+# aplicaciÃÂ³n shiny para proyecto de finanzas cuantitativas
 library(shiny)
 library(ggplot2)
 
 source("datos.R")
+source("funciones.R")
 source("proced.R")
+source("gananc.R")
 
-
-# Aplicación Shiny --------------------------------------------------------
-
+# AplicaciÃ³n Shiny --------------------------------------------------------
 
 ui <- fluidPage(
-  
-  titlePanel("Análisis de coberturas financieras"),
-  # información general y descripción
-  mainPanel(
-    p("Aplicación diseñada para analizar distintas estrategias financieras para cobertura 
-      de tipo de cambio (MXN/USD) mediante el uso de los derivados: futuros/forwards y opciones."),
-    h4("Por: Luis Cortez Virgen, Daniela Guerra Alcalá, Rodrigo Hernández Mota y Raúl Romero Barragán"),
-    p("Asignatura: Finanzas cuantitativas"),
-    h3("Descripción general"),
-    p("A continuación se presenta la serie de tiempo diaria de la paridad de la moneda mexicana y el
-      dólar estadunidense con 365 datos históricos. La metodología empleada se basa en calcular 
-      trayectorias mediante la determinación de la distribución real del rendimiento logarítmico  
-      de los datos para así obtener una buena estimación del tipo de cambio a 90 días. Con esta 
-      información se evalúa el rendimiento de estrategias propuestas con opciones tipo call y 
-      futuros/forward."),
-    p('[agergar párrafo]') ),
-  # determinación arbitraria del precio strike
-  sliderInput(inputId = "strike",
-              label="Precio strike (k)",
-              value=16, min=15, max=25),
-  plotOutput(outputId="gr")
-  
-)
+  fluidRow(
+    column(12,
+           titlePanel("Análisis de coberturas financieras"),
+           # información general y descripción
+           mainPanel(
+             p("AplicaciÃ³n diseÃ±ada para analizar distintas estrategias financieras para cobertura 
+               de tipo de cambio (MXN/USD) mediante el uso de los derivados: futuros/forwards y opciones."),
+             h4("Por: Luis Cortez Virgen, Daniela Guerra AlcalÃ¡, Rodrigo HernÃ¡ndez Mota y RaÃºl Romero BarragÃ¡n"),
+             p("Asignatura: Finanzas cuantitativas"),
+             h3("DescripciÃ³n general"),
+             p("A continuaciÃ³n se presenta la serie de tiempo diaria de la paridad de la moneda mexicana y el
+               dÃ³lar estadunidense con 365 datos histÃ³ricos. La metodologÃ?a empleada se basa en calcular 
+               trayectorias mediante la determinaciÃ³n de la distribuciÃ³n real del rendimiento logarÃ?tmico  
+               de los datos para asÃ? obtener una buena estimaciÃ³n del tipo de cambio a 90 dÃ?as. Con esta 
+               informaciÃ³n se evalÃºa el rendimiento de estrategias propuestas con opciones tipo call y 
+               futuros/forward."),
+             p('[agergar pÃ¡rrafo]') ),
+           # determinaciÃ³n arbitraria del precio strike
+           numericInput(inputId = "strike", label="Precio strike (k)", 
+                        min = 0, max = 100, value = 16,step = 0.0001),
+           sliderInput(inputId = "time",
+                       label="D�?as para simular",
+                       value=30, min=1, max=100),
+           plotOutput(outputId="gr"),
+           fluidRow(
+             column(6,
+                    "Opciones",
+                    fluidRow(
+                      column(6, 
+                             "Teor�?a"),
+                      column(6,
+                             "Gráfico")
+                    )
+             ),
+             column(width = 6,
+                    "Forward (futuros)"
+             )
+           )
+             )
+           )
+    )
+
 
 
 server <-  function(input, output){
-  #k <- reactive({input$strike^1})
   output$gr <- renderPlot({
-    #hist(seq(1,1000,input$strike))
-    #k <- get(input$strike);
+    resultados <- loque(input$time)
+    kf <- loque2(resultados[[4]],input$strike, input$time)
     ggplot(environment=environment())+
-      geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
-      geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
-      geom_line(data = russo, aes(ID, Precio_original), color="dark orange")+
-      geom_hline(aes_string(yintercept=input$strike),color="dark red",size=0.7)
+      geom_line(data = resultados[[1]],aes(ID, Valor, color=Valores),size=0.05)+
+      geom_line(data = resultados[[2]], aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
+      geom_line(data = resultados[[3]], aes(ID, Precio_original), color="dark orange")+
+      geom_hline(aes_string(yintercept=input$strike),color="dark red",size=0.7)+
+      geom_hline(aes_string(yintercept=kf),color="dark blue",size=0.7)
   })
-    
+  
 }
 
 shinyApp(ui = ui, server = server)
 
-#GrÃ¡fica con simulaciones
-#Volver el K dinÃ¡mico
-#Presentar resultados 
-#Mostrar anÃ¡lisis para una K arbitrari (probabilidad)
