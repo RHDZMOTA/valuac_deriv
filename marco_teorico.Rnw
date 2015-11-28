@@ -1,7 +1,10 @@
-\documentclass{book}
-\usepackage{amsmath}
+%% No modificar el comando \Sexpr
+\Sexpr{set_parent('code_master.Rnw')}
 
-\begin{document}
+% \documentclass{book}
+% \usepackage{amsmath}
+% 
+% \begin{document}
 \section{MARCO TE\'ORICO}
 Markov Chain Monte Carlo:
 
@@ -49,4 +52,4 @@ A continuaci\'on un $q(x)$ como el histograma, despu\'es se hace la inversa del 
 Por lo tanto, la funci\'on de densidad, para cada punto ser\'a la siguiente:
 $f_n(x) = \frac{1}{nh} \sum K(\frac{x-x_i}{n}); -\infty < x < \infty$
 donde $K()$ es la funci\'on suavificante de Kernel y h es el ancho de banda. 
-\end{document}
+%\end{document}
