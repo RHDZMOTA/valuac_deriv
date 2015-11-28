@@ -11,22 +11,27 @@ source("datos.R")
 tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
 tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
 
-ggplot(data=usdmxn, aes(x=Date, y=Rate))+geom_line()
+ggplot(data=usdmxn, aes(x=Date, y=Rate))+geom_line(colour='blue') + 
+  labs(title = 'Tipo de cambio', y = 'USD/MXN', x = 'Tiempo')
 
 
-ggplot(data=rend, aes(x=Date, y=Value))+geom_line()
+ggplot(data=rend, aes(x=Date, y=Value))+geom_line(colour='dark red') + 
+  labs(title = 'Rendimientos del tipo de cambio', y = 'Rendimiento', x = 'Tiempo')
 
 # determinación de q ------------------------------------------------------
 # determinación del histograma de frecuencias para rend. log
 
 #hist(rend$Value)
+##Redefiniendo rendimientos para mundo libre de riesgo
+r <- tiie91$Value[1]/100
+rend$Value <- rend$Value - mean(rend$Value) + r/252
 
 rend <- as.data.frame(rend)
 
 ggplot(data=rend, aes(x=Value)) + 
-   geom_histogram(fill=I('dark red'), col=I('white')) +
+   geom_histogram(fill=I('purple'), col=I('white')) +
      labs(title='Rendimientos', 
-          y='Frecuencia')
+          y='Frecuencia', x = 'Rendimientos') 
 
 ks.test(rend$Value, pnorm(n-1))
 
@@ -50,7 +55,8 @@ for(i in 1:length(interv)){
 
 FA <- as.data.frame(cbind(interv,freq_acum))
 #plot(interv,freq_acum,type="l")
-ggplot(data = FA, aes(x = interv, y = freq_acum)) + geom_line()
+ggplot(data = FA, aes(x = interv, y = freq_acum)) + geom_line(size = 1, colour = "orange") + 
+  labs(title = 'Frecuencia acumulada de rendimientos', y = 'Frecuencia', x = 'Intervalos')
 
 
 deseos <- 100
@@ -63,7 +69,8 @@ for(i in 1:deseos){
 #plot(1:deseos,y)
 #hist(y)
 
-qplot(y, geom = 'histogram')
+qplot(y, geom = 'histogram', fill = I('gray'), color = I('pink'), 
+      main="Histograma de aleatorios Y" , xlab = 'Aleatorios', ylab = 'Frecuencia')
 
 
 
@@ -80,7 +87,9 @@ for(i in 1:(n-1)){
 
 #plot(x,fest,type="l")
 wd <- as.data.frame(cbind(x,fest))
-ggplot(data = wd, aes(x = x, y = fest)) + geom_line()
+ggplot(data = wd, aes(x = x, y = fest)) + geom_line(col=I('red'), size = 1.3) +
+  labs(title = 'Distribución de aleatorios generados (Kernel)', x = 'Intervalo', y = 'Probabilidad')
+
 
 plot(density(rend$Value))
 
@@ -103,6 +112,8 @@ days<-90  #días hasta el vencimiento o pago de proveedores :()
 
 y_esti<-matrix(0, nrow=deseos, ncol=days)
 y_esti[, 1] <- RDRL(rend$Value[n-1],deseos, x, fest, interv, freq_rel, freq_acum)
+
+#Convirtiendo a precios los rendimientos estimados
 s_esti<-matrix(0, nrow=deseos, ncol=days)
 s_esti[, 1] <- usdmxn$Rate[n]*exp(y_esti[, 1])
 for(i in 1:deseos){
@@ -147,7 +158,8 @@ for(i in 2:ncol(s_estiff)){
 colnames(s_estiff) <- nombres
 russia <- melt(s_estiff, id.vars = "ID")
 colnames(russia) <- c('ID', 'Trayectorias', 'Valor')
-ggplot(russia,aes(ID,Valor,color=Trayectorias))+geom_line()
+ggplot(russia,aes(ID,Valor,color=Trayectorias))+geom_line() + 
+  labs(title = 'Trayectorias simuladas', x = "Días", y = 'USD / MXN')
 
 #Gráfico de precio original + trayectorias
 #Gráfico de precio original + trayectorias
@@ -178,12 +190,17 @@ colnames(v_esp) <- c('Promedios', 'ID')
 #Valuacion para tipo de cambio 
 #Aumentar simulaciones
 
+ggplot()+
+  geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
+  geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
+  geom_line(data=russo, aes(ID, Precio_original), color="dark orange") + 
+  labs(title = 'Trayectorias simualdas a 90 días del tipo de cambio', x = 'Días', y = 'USD / MXN')
 
 # Determinación de función de ganancias -----------------------------------
 ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
-r <- tiie91$Value[1]/100
+
 s0 <- s_estiff[1,2]
-k  <- 16.8#s0*exp(r*days/252)
+k  <- 16#s0*exp(r*days/252)
 kf <- s0*exp(r*days/252)
 sigma <- sd(rend$Value)*sqrt(252)
 d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
@@ -202,10 +219,19 @@ ct_tc <- s0*exp(-rf*days/252)*Nd1-k*exp(-rd*days/252)*Nd2
 ct <- max(ct_tc,ct_bs,ct_rdrl)
 #library(fOptions); GBSOption(TypeFlag = "c", S=s0, X=k, Time=days/252, r=r, b=r, sigma=sigma )
 nocional <- 10000 # unidades (dólares que se quieren comprar)
-ganan <- nocional * (pmax(ST - k,0) - ct*exp(r*days/252))
-gananf<- nocional * (ST - kf)
+#ganan <- nocional * (pmax(ST - k,0) - ct*exp(r*days/252))
+ganan <- nocional * (pmax(ST - k,0)*exp(-r/252*days) - ct)
+gananf<- nocional * (ST - kf)*exp(-r*days/252)
 
-# histograma de ganancias -------------------------------------------------
+
+ggplot()+
+  geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
+  geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
+  geom_line(data=russo, aes(ID, Precio_original), color="dark orange")+
+  geom_hline(aes(yintercept=k,color="precio strike"),size=0.71) +
+  labs(title = 'Trayectorias simuladas a 90 días con un precio strike', x = 'Días', y = 'USD / MXN')
+
+# histograma de ganancias opcion -------------------------------------------------
 #hist(ganan)
 normita <- ks.test(ganan, pnorm(deseos))
 
@@ -215,7 +241,7 @@ v_max <- max(ganan)
 rango <- v_max - v_min
 delta <- rango / clases
 
-#histograma de frec, acumulada
+#histograma de frec, acumulada opción
 interv <- numeric()
 interv[1] <- v_min
 for(i in 2:(clases+1)){
@@ -229,18 +255,20 @@ for(i in 1:length(interv)){
 
 FA <- as.data.frame(cbind(interv,freq_acum))
 #plot(interv,freq_acum,type="l")
-ggplot(data = FA, aes(x = interv, y = freq_acum)) + geom_line()
+qplot(ganan, geom = 'histogram', fill = I('dark green'),
+      color = I('white'),main = 'Histograma de ganancias', xlab = 'Ganancias', ylab = 'Frecuencia')
+ggplot(data = FA, aes(x = interv, y = freq_acum)) + geom_line(size = 1.2, colour = 'orange') + 
+  labs(title = 'Frecuencia acumulada de ganancias de la opción Call', x = 'Ganancias', y = 'Frecuencia acumulada')
 
-# Valor en riesgo
+# Valor en riesgo opción
 nc <- 0.99
 VaR <- inversa(1-nc, interv, freq_acum)
 
-# Prob. de ganar
+# Prob. de ganar opción
 prob_perder <- inversa(0, freq_acum, interv)
 prob_ganar <- 1-prob_perder
 
-
-# kernel para ganancias ---------------------------------------------------
+# kernel para ganancias opción ---------------------------------------------------
 
 desv_est <- sd(ganan)
 
@@ -253,12 +281,77 @@ for(i in 1:(deseos)){
   fest <- fest + kernel(ganan[i], deseos+1, h, x)
 }
 
-plot(x,fest,type="l")
-plot(density(ganan))
+#plot(x,fest,type="l")
+wd <- as.data.frame(cbind(x, fest))
+ggplot(data = wd, aes(x = x, y = fest)) + geom_line(col=I('brown'), size = 1.3) +
+  labs(title = 'Distribución de ganancias (Kernel) para una opción Call', x = 'Intervalo', y = 'Probabilidad')
+#plot(density(ganan))
 
 ganancia_esp <- fest%*%x/sum(fest) - nocional
 
 # 
+
+# Histograma de ganancias Futuro ------------------------------------------
+
+normita2 <- ks.test(gananf, pnorm(deseos))
+
+clases2 <- round(sqrt(deseos))
+v_min2 <- min(gananf) 
+v_max2 <- max(gananf)
+rango2 <- v_max2 - v_min2
+delta2 <- rango2 / clases2
+
+#histograma de frec, acumulada opción
+interv <- numeric()
+interv[1] <- v_min2
+for(i in 2:(clases2+1)){
+  interv[i] <- interv[i-1] + delta
+}
+
+freq_acum <- numeric()
+for(i in 1:length(interv)){
+  freq_acum[i] <- sum(gananf<interv[i])/(deseos)
+}
+
+FA2 <- as.data.frame(cbind(interv,freq_acum))
+#plot(interv,freq_acum,type="l")
+qplot(gananf, geom = 'histogram', fill = I('dark green'),
+      color = I('white'),main = 'Histograma de ganancias', xlab = 'Ganancias', ylab = 'Frecuencia')
+ggplot(data = FA2, aes(x = interv, y = freq_acum)) + geom_line(size = 1.2, colour = 'orange') + 
+  labs(title = 'Frecuencia acumulada de ganancias del futuro', x = 'Ganancias', y = 'Frecuencia acumulada')
+
+# Valor en riesgo opción
+nc <- 0.99
+VaRf <- inversa(1-nc, interv, freq_acum)
+
+# Prob. de ganar opción
+prob_perderf <- inversa(0, freq_acum, interv)
+prob_ganarf <- 1-prob_perderf
+
+# Kernel ganancia futuro --------------------------------------------------
+
+desv_est2 <- sd(gananf)
+
+h <- (4*desv_est2^5/(3*(deseos)))^(1/5)
+
+x <- seq((v_min2-desv_est2),(v_max2+desv_est2),rango2/10000)
+
+festf <- numeric(length(x))
+for(i in 1:(deseos)){
+  festf <- festf + kernel(gananf[i], deseos+1, h, x)
+}
+
+#plot(x,fest,type="l")
+wd2 <- as.data.frame(cbind(x, festf))
+ggplot(data = wd2, aes(x = x, y = festf)) + geom_line(col=I('brown'), size = 1.3) +
+  labs(title = 'Distribución de ganancias (Kernel)', x = 'Intervalo', y = 'Probabilidad')
+#plot(density(ganan))
+
+ganancia_espf <- festf%*%x/sum(festf) - nocional
+
+# 
+
+
 # # optimización ------------------------------------------------------------
 # 
 # ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
@@ -281,14 +374,4 @@ ganancia_esp <- fest%*%x/sum(fest) - nocional
 #Comparamos también el resultado esperado de nuestras simulaciones con el de MexDer
 #Conviene mejor experimentar y comparar que shiny. Perro Diablo.
 
-ggplot()+
-  geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
-  geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
-  geom_line(data=russo, aes(ID, Precio_original), color="dark orange")
-
-ggplot()+
-  geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
-  geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
-  geom_line(data=russo, aes(ID, Precio_original), color="dark orange")+
-  geom_hline(aes(yintercept=k,color="precio strike"),size=0.71)
 
