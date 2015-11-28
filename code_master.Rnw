@@ -99,7 +99,7 @@ Dr. Juan Diego \textsc{Sánchez Torres} % Supervisor's Name
 \end{titlepage}
 \tableofcontents
 <<packages, message=FALSE, warning=FALSE>>=
-require(quantmod)
+library(quantmod)
 library(fBasics)
 library(ggplot2)
 library(Quandl)
