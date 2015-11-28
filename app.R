@@ -3,7 +3,7 @@ library(shiny)
 library(ggplot2)
 
 source("datos.R")
-source("funciones.R")
+#source("funciones.R")
 source("proced.R")
 source("gananc.R")
 
@@ -29,7 +29,7 @@ ui <- fluidPage(
              p('[agergar pÃƒÂ¡rrafo]') ),
            # determinaciÃƒÂ³n arbitraria del precio strike
            numericInput(inputId = "strike", label="Precio strike (k)", 
-                        min = 0, max = 100, value = 16,step = 0.0001),
+                        min = 0, max = 100, value = 16,step = 0.01),
            sliderInput(inputId = "time",
                        label="DÃ?as para simular",
                        value=30, min=1, max=100),
@@ -39,7 +39,8 @@ ui <- fluidPage(
                     "Opciones",
                     fluidRow(
                       column(6, 
-                             "TeorÃ?a"),
+                             "TeorÃ?a",
+                             textOutput(outputId =  "yolo")),
                       column(6,
                              "GrÃ¡fico")
                     )
@@ -65,7 +66,7 @@ server <-  function(input, output){
       geom_hline(aes_string(yintercept=input$strike),color="dark red",size=0.7)+
       geom_hline(aes_string(yintercept=kf),color="dark blue",size=0.7)
   })
-  
+  output$yolo <- renderText(paste("Tipo", class(input$strike)))
 }
 
 shinyApp(ui = ui, server = server)
