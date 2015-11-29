@@ -26,7 +26,7 @@ for(i in 1:length(interv)){
 FA <- cbind(interv,freq_acum)
 
 
-deseos <- 3
+deseos <- 50
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
@@ -65,7 +65,7 @@ loque <- function(days){
   s_esti[, 1] <- usdmxn$Rate[n]*exp(y_esti[, 1])
   for(i in 1:deseos){
     for(j in 2:days){
-      y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],2, x, fest, interv, freq_rel, freq_acum))
+      y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],1, x, fest, interv, freq_rel, freq_acum))
       s_esti[i,j] <- s_esti[i, j-1]*exp(y_esti[i,j])
     }
   }
