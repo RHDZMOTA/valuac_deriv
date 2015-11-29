@@ -26,7 +26,7 @@ for(i in 1:length(interv)){
 FA <- cbind(interv,freq_acum)
 
 
-deseos <- 50
+deseos <- 10
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
