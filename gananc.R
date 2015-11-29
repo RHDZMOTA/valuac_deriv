@@ -124,5 +124,12 @@ for(i in 1:(deseos)){
 wd2 <- as.data.frame(cbind(x, festf))
 
 ganancia_espf <- festf%*%x/sum(festf) - nocional
-return(kf)
+resultados2 <- list()
+resultados2[[1]] <- kf
+resultados2[[2]] <- ST
+resultados2[[3]] <- as.data.frame(cbind(ST, ganan))
+resultados2[[4]] <- as.data.frame(cbind(ST, gananf))
+
+names(resultados2) <- c('kf', 'ST', 'Ganan_opcion', 'Ganan_forward')
+return(resultados2)
 }
