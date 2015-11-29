@@ -17,7 +17,7 @@ source("funciones.R")
 source("datos.R")
 @
 
-\section{Obtención de datos y neutralización al riesgo}
+\chapter{Obtención de datos y neutralización al riesgo}
 
 Iniciando con el procedimiento, se obtienen los datos de la página \emph{Quandl}. Se muestran además gráficas del tipo de cambio desde un año atrás hasta el día actual. A su vez, se hace una gráfica de los rendimientos continuamente compuestos del periodo en cuestión. Cabe mencionar que a los rendimientos se les aplicó el siguiente algoritmo:
 
@@ -61,7 +61,7 @@ Para poder obtener la probabilidad correspondiente a cada uno de los rendimiento
 
 
 
-\section{Generación de aleatorios igualmente distribuidos}
+\chapter{Generación de aleatorios igualmente distribuidos}
 
 <<funcion_q, message=FALSE, warning=FALSE, fig.keep = 'none'>>=
 # determinación del histograma de frecuencias para rend. log
@@ -170,7 +170,7 @@ datos_promedio <- 10
 
 Como se explicaba en el documento teórico, se procede entonces a la generación del \emph{kernel} sumando las distribuciones de probabilidad para cada uno de los nuevos datos obteniendo así una nueva gráfica de densidad que se asemeja a la empírica mencionada anteriormente [REFERENCIAR EL HISTOGRAMA CONTINUO]. 
 
-\section{Creación de simulaciones para el tipo de cambio}
+\chapter{Creación de simulaciones para el tipo de cambio}
 
 En una segunda etapa se realizarán 100 simulaciones correspondientes para el plazo indicado que, en este caso, serán de 90 días (pedidos por los proveedores). Previo a esto, se realizó la conversión de rendimientos a precios dado  que la variable de atención es el tipo de cambio USD/MXN. Cada dato simulado será calculado con un promedio de \Sexpr{datos_promedio} aleatorios generados de la misma manera antes mencionada para intentar que los datos extremos de la simulación no sean tan alejados a la realidad, es decir, disminuir la varianza del proceso. \par
 
@@ -205,7 +205,7 @@ s_estiff <- cbind(1:nrow(t(s_estif)), t(s_estif))
 s_estiff <- as.data.frame(s_estiff)
 @
 
-\section{Resultados gráficos de trayectoras simuladas}
+\chapter{Resultados gráficos de trayectoras simuladas}
 
 <<graficas, warning=FALSE, message=FALSE, fig.keep = 'none'>>=
 russo <- matrix(NA, nrow=(n+days), ncol = (deseos+2))
@@ -264,16 +264,17 @@ ggplot()+
        x = 'Días', y = 'USD / MXN')
 @
 
-
-
 \begin{figure}[H] \centering
-\subfloat[$\text{Trayectorias simuladas}$]{\includegraphics[width = 6cm]{figure/graficas-1.pdf}}
-\subfloat[$\text{Trayectorias simuladas junto con la trayectoria del tipo de cambio original}$]{\includegraphics[width = 6cm]{figure/graficas-2.pdf}}
-\caption{Generalidades de las trayectorias}
+\includegraphics[width = 9cm]{figure/graficas-1.pdf}
+\caption{Trayectorias simuladas}
+\end{figure}
+\begin{figure}[H] \centering
+\includegraphics[width = 9cm]{figure/graficas-2.pdf}
+\caption{Trayectorias simuladas junto con la trayectoria del tipo de cambio original}
 \end{figure}
 
 
-\section{Determinación de función de ganancias}
+\chapter{Determinación de función de ganancias}
 
 Los últimos datos generados por las trayectorias son los valores que se espera tener para el tiempo de vencimiento T o, en este caso, 90 días.  Para la cobertura que requiere la  empresa, se propone el uso de los siguientes derivados:
 
@@ -282,7 +283,7 @@ Los últimos datos generados por las trayectorias son los valores que se espera t
   \item Contrato \emph{forward}
 \end{itemize}
 
-\subsection{Opción tipo \emph{call}}
+\section{Opción tipo \emph{call}}
 
 Una opción de este tipo es un derivado financiero que te otorga el derecho a realizar la compra del activo subyacente en el tiempo de vencimiento a un precio strike $k$ acordado el día de hoy. Cabe mencionar que si bien otorga el derecho al tenedor de la opción, no le impone la obligación de ejercerla, por lo tanto, la opción será ejercida si el precio al tiempo de vencimiento $S_T$ es mayor al precio strike $k$. En el caso de no ejercerse, el tenedor solo pagará la prima correspondiente. \par
 
@@ -314,7 +315,7 @@ La prima de la opción call fue calculada de tres maneras diferentes:
 
 Para la elección de la prima en el cálculo de las ganancias fue tomada la que tuviera el máximo valor de entre las tres antes mencionadas (para presentar el escenario más adverso que podría experimentar la empresa).
 
-\subsection{Contrato tipo forward}
+\section{Contrato tipo forward}
 
 Dicho contrato es un derivado financiero en el cual dos partes se comprometen a la realización de compra/venta de un activo subyacente (en este caso el tipo de cambio) en el tiempo de vencimiento T a un precio de ejercicio acordado $K$.El precio strike fue determinado de la siguiente manera: $$K = S_0e^{r(T-t)}$$. De esta manera el valor del contrato es cero eliminando el arbitraje.   
 
@@ -378,11 +379,11 @@ Se muestra entonces la gráfica de las trayectorias simuladas junto con los preci
 
 
 \begin{figure}[H] \centering
-\includegraphics[width = 6cm]{figure/funcion_ganancias-1.pdf}
+\includegraphics[width = 10cm]{figure/funcion_ganancias-1.pdf}
 \caption{Trayectorias con precio strike}
 \end{figure}
 
-\subsection{Probabilidades de obtener ganancias y ganancia esperada}
+\section{Probabilidades de obtener ganancias y ganancia esperada}
 En este apartado se procede a la creación de la función de distribución de las ganancias considerando la prima correspondiente (en el caso de la opcion). 
 <<histo_ganancias_opcion, warning=FALSE, message=FALSE, fig.keep = 'none'>>=
 #hist(ganan)
