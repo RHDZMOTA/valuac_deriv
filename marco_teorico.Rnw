@@ -4,7 +4,7 @@
 \chapter{Marco teórico}
 Markov Chain Monte Carlo:
 
-Supongamos que es necesario generar $x~\pi(x)$. La idea principal de MCMC es el de construir una cadena de Markov para una x(i) en cada posici\'on, que inicie desde que i=0 hasta infinito que cumpla con lo siguiente: \begin{equation} \label{eq:1} \lim_{i \to \infty} P(x(i)=x) = \pi (x) \end{equation}. Una cadena de Markov est\'a pre-definida por un estado inicial $P(X_0 = x_0 = g(x_0))$. y el Kernel de transici\'on $P(y|x) = P(X_i+1=y|X_i=x)$. Si la cadena es erg\'odica, entonces la distribuci\'on es \'unica. $\Pi(x):\lim_{i \to \infty} f(x_i)$ Por lo tanto \begin{equation} \label{eq:2} \pi(y)= \sum \pi(x) p(y|x) \forall y \in \cap \end{equation}. Una vez definida esta ecuaci\'on, ser\'a necesario implementarla para cada x, obteniendo el siguiente sistema de ecuaciones:\begin{equation} \label{eq:3} 
+Supongamos que es necesario generar $x\sim\pi(x)$. La idea principal de MCMC es el de construir una cadena de Markov para una x(i) en cada posici\'on, que inicie desde que i=0 hasta infinito que cumpla con lo siguiente: \begin{equation} \label{eq:1} \lim_{i \to \infty} P(x(i)=x) = \pi (x) \end{equation}. Una cadena de Markov est\'a pre-definida por un estado inicial $P(X_0 = x_0 = g(x_0))$. y el Kernel de transici\'on $P(y|x) = P(X_i+1=y|X_i=x)$. Si la cadena es erg\'odica, entonces la distribuci\'on es \'unica. $\Pi(x):\lim_{i \to \infty} f(x_i)$ Por lo tanto \begin{equation} \label{eq:2} \pi(y)= \sum \pi(x) p(y|x) \forall y \in \cap \end{equation}. Una vez definida esta ecuaci\'on, ser\'a necesario implementarla para cada x, obteniendo el siguiente sistema de ecuaciones:\begin{equation} \label{eq:3} 
 \pi(x_2)= \pi (x_1) p(x_2|x_1) + \pi (x_1) p(x_2|x_1) + ...\pi(x_n) p(x_2|x_n)
 \end{equation}.
 \begin{equation} \label{eq:4} 
@@ -18,7 +18,7 @@ Bajo esta metodolog\'ia obtenemos lo siguiente:
 P(y|x) = Q(y|x) \alpha(y|x), y \neq x, \alpha(y|x), \varepsilon [0;1] 
 \end{equation}.
 
-La condici\'on o propiedad para una cadena de Markov homogenea, como la anterior ser\'ia la siguiente:
+La condici\'on o propiedad para una cadena de Markov homogénea, como la anterior ser\'ia la siguiente:
 \begin{equation} \label{eq:6} 
 \pi(x) Q(y|x) \alpha(y|x) = \pi(y) Q(x|y) \alpha(x|y), \forall x\neq y
 \end{equation}.
@@ -29,12 +29,12 @@ Donde su soluci\'on ser\'ia:
 \end{equation}.
 
 \begin{equation} \label{eq:8} 
-\alpha(y|x) = min(1, \frac{\pi(y)Q(x|x)}{\pi(x)Q(y|x)})
+\alpha(y|x) = min\left(1, \frac{\pi(y)Q(x|x)}{\pi(x)Q(y|x)}\right)
 \end{equation}.
 
-\chapter{Estimaci\'on de densidad de probabilidad no param\'etrica}
+\section{Estimaci\'on de densidad de probabilidad no param\'etrica}
 \begin{equation} \label{eq:9} 
-f(x)= \frac{1}{n} \sum K_n (x-x_i), K_n(x) = \frac{1}{n} K \frac{x}{n}
+f(x)= \frac{1}{n} \sum K_h (x-X_i), K_h(x) = \frac{1}{h} K \left(\frac{x}\right)
 \end{equation}.
 Donde K es la funci\'on de Kernel y h es su ancho.
 
@@ -43,7 +43,7 @@ Existen diferentes funciones que pueden ser utilizadas para nuestro objetivo, en
 K(x) = \frac {1}{\sqrt{2\pi} }exp^\frac{-x^2}{2}
 \end{equation}.
 
-A continuaci\'on un $q(x)$ como el histograma, despu\'es se hace la inversa del mismo para generar variables aleatorias con la funci\'on de R, runif que se distribuir\'a como $q(x)$ y a continuaci\'on se calcula $f(x)$. y se determina $\alpha(y|x) = min(1, \frac{f(y)q(x)}{f(x)q(y)})$ con esto, la probabilidad de transici\'on ser\'a $p(y|x) = Q(y)\alpha(y|x)$. 
+A continuaci\'on un $q(x)$ como el histograma, despu\'es se hace la inversa del mismo para generar variables aleatorias con la funci\'on de R, runif que se distribuir\'a como $q(x)$ y a continuaci\'on se calcula $f(x)$. y se determina $\alpha(y|x) = min\left(1, \frac{f(y)q(x)}{f(x)q(y)}\right)$ con esto, la probabilidad de transici\'on ser\'a $p(y|x) = Q(y)\alpha(y|x)$. 
 
 Por lo tanto, la funci\'on de densidad, para cada punto ser\'a la siguiente:
 $f_n(x) = \frac{1}{nh} \sum K(\frac{x-x_i}{n}); -\infty < x < \infty$
