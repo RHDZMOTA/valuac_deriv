@@ -48,7 +48,7 @@
 %----------------------------------------------------------------------------------------
 
 \HRule \\[2cm]
-{ \huge \bfseries Proyecto 01: Modelación e interpretación de modelos estocásticos aplicados a series de precios}\\[2cm] % Title of your document
+{ \huge \bfseries Proyecto 02: Valuación de derivados mediante Markov-Chain Monte Carlo}\\[2cm] % Title of your document
 \HRule \\[2cm]
  
 %----------------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ Dr. Juan Diego \textsc{Sánchez Torres} % Supervisor's Name
 
 \end{titlepage}
 \tableofcontents
-<<packages, message=FALSE, warning=FALSE>>=
+<<packages, message=FALSE, warning=FALSE, echo=FALSE>>=
 library(quantmod)
 library(fBasics)
 library(ggplot2)
