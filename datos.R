@@ -16,9 +16,9 @@ url3 <- paste("https://www.quandl.com/api/v3/datasets/USTREASURY/YIELD.csv?start
               ayer,"&end_date=",ayer)
 
 #descargar csv's 
-# download.file(url,"USDMXN.csv")
-# download.file(url2,"tiie91.csv")
-# download.file(url3,"tbill91.csv")
+download.file(url,"USDMXN.csv")
+download.file(url2,"tiie91.csv")
+download.file(url3,"tbill91.csv")
 
 #leer variables de interés 
 tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
