@@ -49,12 +49,16 @@ La distribución resultante se identificará como la función objetivo.
 
 \section{Función propuesta ($Q$)}
 
-Se propone $q(x)$ como el histograma de frecuencia, tomado como una función por partes. Se utiliza el método de la inversa para generar $n$ números aleatorios cuya distribución se asemeja a $q(x)$. 
+Se propone la función $q(x)$ como el histograma de frecuencia, tomado como una función por partes. Se utiliza el método de la inversa para generar $n$ números aleatorios cuya distribución se asemeje a $q(x)$. 
 
+Para relacionar la simulación con las cadenas de Markov, entra el factor de corrección $\alpha$ antes mencionado, donde dependiendo  si se satisface o no la condición, el dato simulado será el mismo del día anterior o bien el nuevo estimado. A partir de estos datos aleatorios, se realizan las simulaciones de las trayectorias (tomando en cuenta el dato inmediato anterior del tipo de cambio). Para la primera estimación se toma en cuenta el último dato real extraído, mientras que para los siguientes días se toma la estimación del día anterior.
 
- y a continuaci\'on se calcula $f(x)$. y se determina $\alpha(y|x) = min\left(1, \frac{f(y)q(x)}{f(x)q(y)}\right)$ con esto, la probabilidad de transici\'on ser\'a $p(y|x) = Q(y)\alpha(y|x)$. 
+\section{Derivados Financieros}
 
-Por lo tanto, la funci\'on de densidad, para cada punto ser\'a la siguiente:
-$f_n(x) = \frac{1}{nh} \sum K(\frac{x-x_i}{n}); -\infty < x < \infty$
-donde $K()$ es la funci\'on suavificante de Kernel y h es el ancho de banda. 
+\textbf{Opción Call}\par
+Una opción tipo call es un derivado financiero que otorga, al poseedor de la misma, el derecho a comprar el activo subyacente a un precio de ejercicio ($K$) antes definido, en una fecha de vencimiento determinada. Debido a que se tiene la opción de comprar, este derivado se ejercerá cuando el precio strike ($K$) esté por debajo del precio del mercado ($ST$), ya que esto implica que se compra a un precio inferior al del mercado y hay un beneficio.
+
+\textbf{Contrato Forward}\par
+Un contrato forward es un contrato a plazo en el que dos partes tienen la obligación de comprar/vender el activo subyacente en el tiempo de vencimiento y a un precio de ejercicio ($K$) antes establecido.
+
 
