@@ -1,4 +1,5 @@
 # código para obtener datos
+setwd("~/GitHub/valuac_deriv")
 library(Quandl)
 
 if(exists("inter_t")==1){
@@ -19,17 +20,16 @@ url2 <- paste("https://www.quandl.com/api/v3/datasets/BDM/SF43878.csv?start_date
               ayer,"&end_date=",ayer)
 url3 <- paste("https://www.quandl.com/api/v3/datasets/USTREASURY/YIELD.csv?start_date",
               ayer,"&end_date=",ayer)
-
-#descargar csv's 
-download.file(url,"USDMXN.csv")
-download.file(url2,"tiie91.csv")
-download.file(url3,"tbill91.csv")
-
 #leer variables de interés 
 if(flag == 0){
-  tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
-  tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
+  #descargar csv's 
+  download.file(url,"USDMXN.csv")
+  download.file(url2,"tiie91.csv")
+  download.file(url3,"tbill91.csv")
 }
+
+tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
+tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
 
 r <- tiie91$Value[1]/100
 rd <- tiie91$Value[1]/100
