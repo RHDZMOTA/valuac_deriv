@@ -15,7 +15,6 @@ library(timeSeries)
 <<source_inutl, warning=FALSE, message=FALSE, echo=FALSE>>=
 source("funciones.R")
 source("datos.R")
-source("libreta.R")
 @
 
 \chapter{Obtención de datos}
@@ -351,22 +350,6 @@ ggplot()+
 concepto <- c('Black-Scholes', 'Simulación', 'Black-Scholes foreign exchange rate')
 titulo <- 'Prima de la opción call'
 @
-A continuación se muestra una tabla comparativa de las distintas primas ya descritas anteriormente exceptuando la de las simulaciones pues se calculará en párrafos posteriores.
-
-\begin{table}[h!]
-  \resizebox{\textwidth}{!}{%
-    \begin{tabular}{|l|l|}\hline
-
-  \textbf{Concepto}  & \textbf{\Sexpr{titulo}}  \\ \hline
-  
-  \Sexpr{concepto[1]}&  \Sexpr{ct_bs}   \\ \hline
-  \Sexpr{concepto[2]}&  \Sexpr{ct_rdrl} \\ \hline
-  \Sexpr{concepto[3]}&  \Sexpr{ct_tc}   \\ \hline
-
-
-    \end{tabular} 
-                            }
-\end{table}
 
 Se muestra entonces la gráfica de las trayectorias simuladas junto con los precios strike determinados para la opción y el forward. 
 
@@ -565,15 +548,35 @@ prob_ganarn<-sum(ganan_nets>0)/deseos # probabilidad de ganar, osea ejercer. Obv
 prob_perden <- 1 - prob_ganarn # solamente se "pierde" la prima 
 
 @
+
 \begin{figure}[H] \centering
 \subfloat[$\text{Histograma de ganancias netas}$]{\includegraphics[width = 6cm]{figure/ganancia_neta_opcion-1.pdf}}
 \subfloat[$\text{Frecuencia acumulada de las ganancias netas}$]{\includegraphics[width = 6cm]{figure/ganancia_neta_opcion-2.pdf}}
 \caption{Ganancias del forward}
 \end{figure}
+
 <<auxiliares, message=FALSE, warning=FALSE, echo=FALSE>>=
 concepto <- c('Prob. Ganar')
 derivados <- c('Opción Call', 'Forward', "Neto de la opción call")
+source('libreta.R')
 @
+Posteriormente se muestra una tabla comparativa de las distintas primas ya descritas anteriormente exceptuando la de las simulaciones pues se calculará en párrafos posteriores.
+
+\begin{table}[h!]
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|l|}\hline
+
+  \textbf{Concepto}  & \textbf{\Sexpr{titulo}}  \\ \hline
+  
+  \Sexpr{concepto[1]}&  \Sexpr{ct_bs}   \\ \hline
+  \Sexpr{concepto[2]}&  \Sexpr{ct_rdrl} \\ \hline
+  \Sexpr{concepto[3]}&  \Sexpr{ct_tc}   \\ \hline
+
+
+    \end{tabular} 
+                            }
+\end{table}
+
 A continuación, se presentan la comparación de la ganancia esperada, probabilidad de ganar y el valor en riesgo para los dos derivados en cuestión. 
 \begin{table}[h!]
   \resizebox{\textwidth}{!}{%
@@ -589,3 +592,9 @@ A continuación, se presentan la comparación de la ganancia esperada, probabilida
   \end{tabular} 
   }
 \end{table}
+
+
+
+
+
+
