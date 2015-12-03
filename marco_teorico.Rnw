@@ -12,7 +12,7 @@ Supongamos que es necesario generar $x\sim\pi(x)$. La idea principal de MCMC es 
 \pi(x_n)= \pi (x_1) p(x_n|x_1) + \pi (x_2) p(x_n|x_2) + ...\pi(x_n) p(x_n|x_n)
 \end{equation}.
 
-Existe un n\'umero infinito de Kernel's de transici\'on  $P(y|x)$ tales que satisfagan el sistema de ecuaciones anterior.Para este se utilizó el algoritmo de \emph {Metropolis-Hastings} para construir el Kernel de transici\'on. En este algoritmo se propone una distribución de transición arbitraria denominada $Q$. Por lo tanto, ahora existe una probabilidad de que $Q(y|x)=p(y|x)$.
+Existe un n\'umero infinito de Kernels de transici\'on  $P(y|x)$ tales que satisfagan el sistema de ecuaciones anterior.Para este se utilizó el algoritmo de \emph {Metropolis-Hastings} para construir el Kernel de transici\'on. En este algoritmo se propone una distribución de transición arbitraria denominada $Q$. Por lo tanto, ahora existe una probabilidad de que $Q(y|x)=p(y|x)$.
 
 En notación matemática se obtiene:
 \begin{equation} \label{eq:5} 
@@ -57,9 +57,8 @@ Para relacionar la simulación con las cadenas de Markov, entra el factor de corr
 \section{Derivados Financieros}
 
 \textbf{Opción Call}\par
-Una opción tipo call es un derivado financiero que otorga, al poseedor de la misma, el derecho a comprar el activo subyacente a un precio de ejercicio ($K$) antes definido, en una fecha de vencimiento determinada. Debido a que se tiene la opción de comprar, este derivado se ejercerá cuando el precio strike ($K$) esté por debajo del precio del mercado ($ST$), ya que esto implica que se compra a un precio inferior al del mercado y hay un beneficio.
+Una opción tipo call es un derivado financiero que otorga, al poseedor de la misma, el derecho a comprar el activo subyacente a un precio de ejercicio ($K$) antes definido, en una fecha de vencimiento determinada. Debido a que se tiene la opción de comprar, este derivado se ejercerá cuando el precio strike ($K$) esté por debajo del precio del mercado ($S_T$), ya que esto implica que se compra a un precio inferior al del mercado y hay un beneficio.
 
 \textbf{Contrato Forward}\par
 Un contrato forward es un contrato a plazo en el que dos partes tienen la obligación de comprar/vender el activo subyacente en el tiempo de vencimiento y a un precio de ejercicio ($K$) antes establecido.
-
 

@@ -15,21 +15,15 @@ library(timeSeries)
 <<source_inutl, warning=FALSE, message=FALSE, echo=FALSE>>=
 source("funciones.R")
 source("datos.R")
+source("libreta.R")
 @
 
-\chapter{Obtención de datos y neutralización al riesgo}
+\chapter{Obtención de datos}
 
-Iniciando con el procedimiento, se obtienen los datos de la página \emph{Quandl}. Se muestran además gráficas del tipo de cambio desde un año atrás hasta el día actual. A su vez, se hace una gráfica de los rendimientos continuamente compuestos del periodo en cuestión. Cabe mencionar que a los rendimientos se les aplicó el siguiente algoritmo:
+Iniciando con el procedimiento, se obtienen los datos de la página \emph{Quandl}. Se muestran además gráficas del tipo de cambio desde un año atrás hasta el día actual. 
 
-\begin{equation}
-	R_t = r_t - \mu_{r_t} + r_{diaria}
-\end{equation}
 
-Dicho algoritmo es para posteriormente poder realizar valuaciones en un mundo neutral al riesgo. 
-
-<<obtencion, message=FALSE, warning=FALSE>>=
-# https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?
-#start_date=1996-03-26&end_date=2012-08-14
+<<obtencion, message=FALSE, warning=FALSE, fig.keep='none'>>=
 tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
 tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
 
@@ -51,8 +45,8 @@ ggplot(data=rend, aes(x=Date, y=Value))+geom_line(colour='dark red') +
 Específicamente y como referencia para poder hacer un cálculo posterior, se obtuvieron el último dato de la TIIE91 y los TBills a 91 días. Dichos datos son:
 
 \begin{itemize}
-  \item TIIE91: \Sexpr{tiie91$Value[1]} 
-  \item TBILL 91: \Sexpr{tbill91$X3.Mo[1]}
+  \item TIIE91: \Sexpr{tiie91$Value[1]}\%
+  \item TBILL 91: \Sexpr{tbill91$X3.Mo[1]}\%
 \end{itemize}
 
 Justo después de la representación de lo que consideramos nosotros como la verdadera distribución \emph{empírica} de los datos, se realiza la prueba de normalidad de la misma dando como resultado que los rendimientos no se distribuyen de manera normal lo cual avala la elección del método en cuestión: MCMC.
@@ -62,10 +56,8 @@ Para poder obtener la probabilidad correspondiente a cada uno de los rendimiento
 
 \chapter{Generación de aleatorios igualmente distribuidos}
 
-<<funcion_q, message=FALSE, warning=FALSE>>=
-# determinación del histograma de frecuencias para rend. log
+<<funcion_q, message=FALSE, warning=FALSE, fig.keep='none'>>=
 
-#hist(rend$Value)
 ##Redefiniendo rendimientos para mundo libre de riesgo
 r <- tiie91$Value[1]/100
 #rend$Value <- rend$Value - mean(rend$Value) + r/252
@@ -73,9 +65,9 @@ r <- tiie91$Value[1]/100
 rend <- as.data.frame(rend)
 
 ggplot(data=rend, aes(x=Value)) + 
-   geom_histogram(fill=I('purple'), col=I('white')) +
-     labs(title='Rendimientos', 
-          y='Frecuencia', x = 'Rendimientos') 
+  geom_histogram(fill=I('purple'), col=I('white')) +
+  labs(title='Rendimientos', 
+       y='Frecuencia', x = 'Rendimientos') 
 
 ks.test(rend$Value, pnorm(n-1))
 
@@ -117,6 +109,7 @@ qplot(y, geom = 'histogram', fill = I('gray'), color = I('pink'),
       main="Histograma de aleatorios Y" , xlab = 'Aleatorios', ylab = 'Frecuencia')
 
 
+
 desv_est <- sd(rend$Value)
 
 h <- (4*desv_est^5/(3*(n-1)))^(1/5)
@@ -131,8 +124,7 @@ for(i in 1:(n-1)){
 #plot(x,fest,type="l")
 wd <- as.data.frame(cbind(x,fest))
 ggplot(data = wd, aes(x = x, y = fest)) + geom_line(col=I('red'), size = 1.3) +
-  labs(title = 'Distribución de aleatorios generados (Kernel)',
-       x = 'Intervalo',y = 'Probabilidad')
+  labs(title = 'Distribución de aleatorios generados (Kernel)', x = 'Intervalo', y = 'Probabilidad')
 
 
 plot(density(rend$Value))
@@ -148,9 +140,7 @@ for (j in 1:(n-1)){
 }
 freq_rel<-freq_rel/sum(freq_rel)
 
-
-datos_promedio <- 1
-days<-90
+days<-90 
 @
 
 
@@ -162,12 +152,12 @@ days<-90
 
 \begin{figure}[H] \centering
 \subfloat[$\text{Aleatorios generados}$]{\includegraphics[width = 6cm]{figure/funcion_q-3.pdf}}
-\subfloat[$\text{Kernel de los aleatorios generados}$]{\includegraphics[width = 6cm]{figure/funcion_q-4.pdf}}
+\subfloat[$\text{Kernel de los aleatorios generados}$]{\includegraphics[width = 6cm]{figure/funcion_q-4.pdf}\label{signal_model}}
 \caption{Rendimientos generados}
 \end{figure}
 
 
-Como se explicaba en el documento teórico, se procede entonces a la generación del \emph{kernel} sumando las distribuciones de probabilidad para cada uno de los nuevos datos obteniendo así una nueva gráfica de densidad que se asemeja a la empírica mencionada anteriormente [REFERENCIAR EL HISTOGRAMA CONTINUO]. 
+Como se explicaba en el documento teórico, se procede entonces a la generación del \emph{kernel} sumando las distribuciones de probabilidad para cada uno de los nuevos datos obteniendo así una nueva gráfica de densidad que se asemeja a la empírica mencionada anteriormente \protect\subref{signal_model}.
 
 \chapter{Creación de simulaciones para el tipo de cambio}
 
@@ -176,9 +166,12 @@ En una segunda etapa se realizarán \Sexpr{deseos} simulaciones correspondientes 
 Cabe mencionar que el primer paso de las trayectorias simuladas depende del último dato observado. Los demás dependen del simulado anterior y con esto se asegura continuar con el procedimiento de \emph{cadena de Markov}.
 
 
-<<simulaciones, warning=FALSE, message=FALSE>>=
+<<simulaciones, warning=FALSE, message=FALSE, fig.keep = 'none'>>=
 #Generación de simulaciones (trayectorias)
 
+#Generación de simulaciones (trayectorias)
+#El primer paso de las trayectorias depende del último dato real.
+# Los demás dependen del simulado anterior.
 days<-90  #días hasta el vencimiento o pago de proveedores 
 
 y_esti<-matrix(0, nrow=deseos, ncol=days)
@@ -189,8 +182,7 @@ s_esti<-matrix(0, nrow=deseos, ncol=days)
 s_esti[, 1] <- usdmxn$Rate[n]*exp(y_esti[, 1])
 for(i in 1:deseos){
   for(j in 2:days){
-    y_esti[i,j] <- mean(RDRL(y_esti[i,j-1], datos_promedio, x, fest, 
-                             interv, freq_rel, freq_acum))
+    y_esti[i,j] <- mean(RDRL(y_esti[i,j-1],1, x, fest, interv, freq_rel, freq_acum))
     s_esti[i,j] <- s_esti[i, j-1]*exp(y_esti[i,j])
   }
 }
@@ -204,9 +196,10 @@ s_estiff <- cbind(1:nrow(t(s_estif)), t(s_estif))
 s_estiff <- as.data.frame(s_estiff)
 @
 
-\chapter{Resultados gráficos de trayectoras simuladas}
+\chapter{Resultados gráficos de trayectorias simuladas}
 
-<<graficas, warning=FALSE, message=FALSE>>=
+<<graficas, warning=FALSE, message=FALSE, fig.keep = 'none'>>=
+
 russo <- matrix(NA, nrow=(n+days), ncol = (deseos+2))
 russo[1:n,1] <- usdmxn$Rate
 russo[(n):(n+days),(3:ncol(russo))]<- t(s_estif)
@@ -235,7 +228,7 @@ ggplot(russia,aes(ID,Valor,color=Trayectorias))+geom_line() +
   theme(legend.position="none")
 
 #Gráfico de precio original + trayectorias
-#Gráfico de precio original + trayectorias
+
 nombres2 <- numeric()
 nombres2[1] <- 'Precio_original'
 nombres2[2] <- 'ID'
@@ -260,7 +253,7 @@ ggplot()+
   geom_line(data = russa,aes(ID, Valor, color=Valores),size=0.05)+
   geom_line(data = v_esp, aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
   geom_line(data=russo, aes(ID, Precio_original), color="dark orange") + 
-  labs(title = 'Trayectorias simualdas a 90 días del tipo de cambio',
+  labs(title = 'Trayectorias simuladas a 90 días del tipo de cambio', 
        x = 'Días', y = 'USD / MXN')+ 
   theme(legend.position="none")
 @
@@ -271,7 +264,7 @@ ggplot()+
 \end{figure}
 \begin{figure}[H] \centering
 \includegraphics[width = 9cm]{figure/graficas-2.pdf}
-\caption{Trayectorias simuladas junto con la trayectoria del tipo de cambio original}
+\caption{Trayectorias simuladas junto con la serie del tipo de cambio original}
 \end{figure}
 
 
@@ -301,10 +294,10 @@ La prima de la opción call fue calculada de tres maneras diferentes:
       \item $d_2 = d_1 - \sigma \sqrt{T-t}$
       \item $r =$ Tasa de interés libre de riesgo.
       \item $\sigma =$ Desviación de los rendimientos del tipo de cambio.
-      \item $N(x)$ función de distribución acumulada normal.
+      \item $N(x)$ es la función de distribución acumulada normal.
     \end{itemize}
   
-  \item Simulación con los datos obtenidos mediante la simulación calculada de la siguiente manera: $max(S_T - k, 0)$ traído a valor presente.  
+  \item Prima con los datos obtenidos mediante la simulación calculada de la siguiente manera: $max(\hat{S_T} - k, 0)$ traído a valor presente.  
   \item \emph{Black-Scholes for exchange rates}:  $C_t = S_te^{-r(T-t)}N(d_1) - ke^{-r(T-t)} N(d_2)$ donde lo único que cambia es:
     \begin{itemize}
       \item $d_1 = \frac{\ln \left( \frac{S_t}{k}\right) + \left( r_d - r_f+ \frac{\sigma^2}{2}\right) (T-t)}{\sigma \sqrt{T-t}}$
@@ -314,17 +307,17 @@ La prima de la opción call fue calculada de tres maneras diferentes:
   
 \end{enumerate}
 
-Para la elección de la prima en el cálculo de las ganancias fue tomada la que tuviera el máximo valor de entre las tres antes mencionadas (para presentar el escenario más adverso que podría experimentar la empresa).
+Para la elección de la prima en el cálculo de las ganancias fue tomada la correspondiente a \emph{Black-Scholes for exchange rates} de entre las tres antes mencionadas.
 
 \section{Contrato tipo forward}
 
 Dicho contrato es un derivado financiero en el cual dos partes se comprometen a la realización de compra/venta de un activo subyacente (en este caso el tipo de cambio) en el tiempo de vencimiento T a un precio de ejercicio acordado $K$.El precio strike fue determinado de la siguiente manera: $$K = S_0e^{r(T-t)}$$. De esta manera el valor del contrato es cero eliminando el arbitraje.   
 
-<<funcion_ganancias, message=FALSE, warning=FALSE>>=
+<<funcion_ganancias, message=FALSE, warning=FALSE, fig.keep='none'>>=
 ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
 
 s0 <- s_estiff[1,2]
-k  <- s0*exp(r*days/252)
+k  <- 16.35 #s0*exp(r*days/252)
 kf <- s0*exp(r*days/252)
 sigma <- sd(rend$Value)*sqrt(252)
 d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
@@ -332,7 +325,6 @@ d2 <- d1-sigma*sqrt(days/252)
 Nd1<- pnorm(d1)
 Nd2<- pnorm(d2)
 ct_bs <- s0*Nd1-k*exp(-r*days/252)*Nd2 # unidades: pesos por dólar
-ct_rdrl <- mean(pmax(ST - k,0)*exp(-r*days/252))
 rd <- tiie91$Value[1]/100
 rf <- tbill91$X3.Mo[1]/100
 d1 <- (log(s0/k)+(rd-rf+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
@@ -340,12 +332,10 @@ d2 <- d1-sigma*sqrt(days/252)
 Nd1<- pnorm(d1)
 Nd2<- pnorm(d2)
 ct_tc <- s0*exp(-rf*days/252)*Nd1-k*exp(-rd*days/252)*Nd2
-ct <- max(ct_tc,ct_bs,ct_rdrl)
-#library(fOptions); GBSOption(TypeFlag = "c", S=s0, X=k, Time=days/252, r=r, b=r, sigma=sigma )
+ct <- ct_tc
 nocional <- 10000 # unidades (dólares que se quieren comprar)
-#ganan <- nocional * (pmax(ST - k,0) - ct*exp(r*days/252))
-ganan <- nocional * (pmax(ST - k,0)*exp(-r/252*days) - ct)
-gananf<- nocional * (ST - kf)*exp(-r*days/252)
+ganan <- pmax(ST - k,0)*exp(-r/252*days)
+gananf<- (ST - kf)*exp(-r*days/252)
 
 
 ggplot()+
@@ -354,27 +344,28 @@ ggplot()+
   geom_line(data=russo, aes(ID, Precio_original), color="dark orange")+
   geom_hline(aes(yintercept=k),size=0.71) +
   geom_hline(aes(yintercept=kf,color="precio strike"),size=0.71) +
-  labs(title = 'Trayectorias simuladas a 90 días con un precio strike', x = 'Días', y = 'USD / MXN')+ 
+  labs(title = 'Trayectorias simuladas a 90 días con un precio strike',
+       x = 'Días', y = 'USD / MXN')+ 
   theme(legend.position="none")
 
 concepto <- c('Black-Scholes', 'Simulación', 'Black-Scholes foreign exchange rate')
 titulo <- 'Prima de la opción call'
 @
-A continuación se muestra una tabla comparativa de las distintas primas ya descritas anteriormente.
+A continuación se muestra una tabla comparativa de las distintas primas ya descritas anteriormente exceptuando la de las simulaciones pues se calculará en párrafos posteriores.
 
- \begin{table}[h!]
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{|l|l|}\hline
+\begin{table}[h!]
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|l|}\hline
 
   \textbf{Concepto}  & \textbf{\Sexpr{titulo}}  \\ \hline
   
-\Sexpr{concepto[1]}&\Sexpr{ct_bs} \\ \hline
-\Sexpr{concepto[2]}&\Sexpr{ct_rdrl} \\ \hline
-\Sexpr{concepto[3]}&\Sexpr{ct_tc} \\ \hline
+  \Sexpr{concepto[1]}&  \Sexpr{ct_bs}   \\ \hline
+  \Sexpr{concepto[2]}&  \Sexpr{ct_rdrl} \\ \hline
+  \Sexpr{concepto[3]}&  \Sexpr{ct_tc}   \\ \hline
 
 
-\end{tabular} 
-}
+    \end{tabular} 
+                            }
 \end{table}
 
 Se muestra entonces la gráfica de las trayectorias simuladas junto con los precios strike determinados para la opción y el forward. 
@@ -385,9 +376,9 @@ Se muestra entonces la gráfica de las trayectorias simuladas junto con los preci
 \caption{Trayectorias con precio strike}
 \end{figure}
 
-\section{Probabilidades de obtener ganancias y ganancia esperada}
-En este apartado se procede a la creación de la función de distribución de las ganancias considerando la prima correspondiente (en el caso de la opcion). 
-<<histo_ganancias_opcion, warning=FALSE, message=FALSE>>=
+\section{Probabilidad de ganancias}
+En este apartado se procede a la creación de la función de distribución de las ganancias considerando la prima correspondiente (en el caso de la opción). 
+<<histo_ganancias_opcion, warning=FALSE, message=FALSE, fig.keep='none'>>=
 #hist(ganan)
 normita <- ks.test(ganan, pnorm(deseos))
 
@@ -406,26 +397,37 @@ for(i in 2:(clases+1)){
 
 freq_acum <- numeric()
 for(i in 1:length(interv)){
-  freq_acum[i] <- sum(ganan<interv[i])/(deseos)
+  freq_acum[i] <- sum(ganan<=interv[i])/(deseos)
 }
 
+#Creación del histograma de frecuencias y función de probabilidad con el hist.
+freq_rel<-numeric(clases)
+for (j in 1:deseos){
+  for (i in 2:length(interv)){
+    if (ganan[j]<=interv[i] & ganan[j]>interv[i-1]){
+      freq_rel[i-1]<-freq_rel[i-1]+1
+    }
+  }
+}
+freq_rel<-freq_rel/sum(freq_rel)
+# determinación del punto medio
+punt_m <- (interv[2:(clases+1)]+interv[1:clases])/2
+
 FA <- as.data.frame(cbind(interv,freq_acum))
-#plot(interv,freq_acum,type="l")
-qplot(ganan, geom = 'histogram', fill = I('dark green'),
-      color = I('white'),main = 'Histograma de ganancias',
-      xlab = 'Ganancias', ylab = 'Frecuencia')
+ggg <- as.data.frame(cbind(punt_m, freq_rel))
+
+ggplot(ggg)+geom_bar(aes(ggg$punt_m,ggg$freq_rel), stat="identity",width=delta,
+                     fill = I('dark green'),color = I('white'))+
+  labs(title='Histograma de ganancias - opción', x="Ganancia", y="Frecuencia relativa")
+
 ggplot(data = FA, aes(x = interv, y = freq_acum)) + geom_line(size = 1.2, colour = 'orange') + 
-  labs(title = 'Frecuencia acumulada de ganancias de la opción Call',
-       x = 'Ganancias', y = 'Frecuencia acumulada')
+  labs(title = 'Frecuencia acumulada de ganancias de la opción Call', x = 'Ganancias',
+       y = 'Frecuencia acumulada')
+ct_rdrl <- freq_rel %*% punt_m
+# probabilidad de ganar
+prob_ejerce <-sum(ganan>0)/deseos # probabilidad de ganar, o sea ejercer. 
+prob_perde <- 1 - prob_ejerce # solamente se "pierde" la prima 
 
-# Valor en riesgo opción
-nc <- 0.99
-nca <- nc*100
-VaR <- inversa(1-nc, interv, freq_acum)
-
-# Prob. de ganar opción
-prob_perder <- inversa(0, freq_acum, interv)
-prob_ganar <- 1-prob_perder
 
 @
 El histograma que corresponde a las ganancias de la opción es el siguiente:
@@ -436,41 +438,9 @@ El histograma que corresponde a las ganancias de la opción es el siguiente:
 \caption{Ganancias de la opción}
 \end{figure}
 
-Así mismo, la probabilidad de obtener una \textbf{ganancia} utilizando una opción de tipo call es de: \Sexpr{prob_ganar}. Con un nivel de confianza del \Sexpr{nca}\%, el VaR para la operación es de \Sexpr{VaR}.
-
-<<kernel_ganan_opcion, warning=FALSE, message=FALSE>>=
-
-desv_est <- sd(ganan)
-
-h <- (4*desv_est^5/(3*(deseos)))^(1/5)
-
-x <- seq((v_min-desv_est),(v_max+desv_est),rango/10000)
-
-fest <- numeric(length(x))
-for(i in 1:(deseos)){
-  fest <- fest + kernel(ganan[i], deseos+1, h, x)
-}
-
-#plot(x,fest,type="l")
-wd <- as.data.frame(cbind(x, fest))
-ggplot(data = wd, aes(x = x, y = fest)) + geom_line(col=I('brown'), size = 1.3) +
-  labs(title = 'Distribución de ganancias (Kernel) para una opción Call', x = 'Intervalo', y = 'Probabilidad')
-#plot(density(ganan))
-
-ganancia_esp <- fest%*%x/sum(fest) - nocional
-
-
-@
-
-La ganancia esperada por la cobertura de la opción call es de: \Sexpr{ganancia_esp}. Cabe recordar que este movimiento fue una cobertura en la que se espera obtener un rendimiento de la cantidad ya mencionada. \par
-La distribución de probabilidad de las ganancias en este mismo derivado tiene la siguiente forma:
-
-\begin{figure}[H] \centering
-\includegraphics[width = 6cm]{figure/kernel_ganan_opcion-1.pdf}
-\caption{Ganancias de la opción}
-\end{figure}
-
-<<histo_ganan_forward, warning=FALSE, message=FALSE>>=
+A continuación, se presenta el procedimiento equivalente anterior para el caso del contrato \emph{forward}
+<<histo_ganan_forward, warning=FALSE, message=FALSE, fig.keep='none'>>=
+#hist(ganan)
 normita2 <- ks.test(gananf, pnorm(deseos))
 
 clases2 <- round(sqrt(deseos))
@@ -480,33 +450,53 @@ rango2 <- v_max2 - v_min2
 delta2 <- rango2 / clases2
 
 #histograma de frec, acumulada opción
-interv <- numeric()
-interv[1] <- v_min2
+intervf <- numeric()
+intervf[1] <- v_min2
 for(i in 2:(clases2+1)){
-  interv[i] <- interv[i-1] + delta
+  intervf[i] <- intervf[i-1] + delta2
 }
 
-freq_acum <- numeric()
-for(i in 1:length(interv)){
-  freq_acum[i] <- sum(gananf<interv[i])/(deseos)
+freq_acumf <- numeric()
+for(i in 1:length(intervf)){
+  freq_acumf[i] <- sum(gananf<=intervf[i])/(deseos)
 }
 
-FA2 <- as.data.frame(cbind(interv,freq_acum))
+
+
+#Creación del histograma de frecuencias y función de probabilidad con el hist.
+freq_relf<-numeric(clases2)
+for (j in 1:deseos){
+  for (i in 2:length(intervf)){
+    if (gananf[j]<=intervf[i] & gananf[j]>intervf[i-1]){
+      freq_relf[i-1]<-freq_relf[i-1]+1
+    }
+  }
+}
+freq_relf<-freq_relf/sum(freq_relf)
+# determinación del punto medio
+punt_mf <- (intervf[2:(clases2+1)]+intervf[1:clases2])/2
+
+
+FA2 <- as.data.frame(cbind(intervf,freq_acumf))
 #plot(interv,freq_acum,type="l")
-qplot(gananf, geom = 'histogram', fill = I('dark green'),
-      color = I('white'),main = 'Histograma de ganancias',
-      xlab = 'Ganancias', ylab = 'Frecuencia')
-ggplot(data = FA2, aes(x = interv, y = freq_acum)) + geom_line(size = 1.2, colour = 'orange') + 
-  labs(title = 'Frecuencia acumulada de ganancias del forward',
+gggf <- as.data.frame(cbind(punt_mf, freq_relf))
+
+ggplot(gggf)+geom_bar(aes(gggf$punt_mf,gggf$freq_relf), stat="identity",width=delta2,
+                      fill = I('dark green'),color = I('white'))+
+  labs(title='Histograma de ganancias - forward', x="Ganancia", y="Frecuencia relativa")
+
+ggplot(data = FA2, aes(x = intervf, y = freq_acumf)) +
+  geom_line(size = 1.2, colour = 'orange') + 
+  labs(title = 'Frecuencia acumulada de ganancias del futuro', 
        x = 'Ganancias', y = 'Frecuencia acumulada')
 
-# Valor en riesgo opción
-nc <- 0.99
-VaRf <- inversa(1-nc, interv, freq_acum)
 
-# Prob. de ganar opción
-prob_perderf <- inversa(0, freq_acum, interv)
-prob_ganarf <- 1-prob_perderf
+
+gananf_neta <- freq_relf %*% punt_mf
+# probabilidad de ganar
+prob_ganarf<-sum(gananf>0)/deseos # probabilidad de ganar, osea ejercer. 
+prob_perdef <- 1 - prob_ganarf # solamente se "pierde" la prima 
+
 @
 
 El histograma que corresponde a las ganancias del forward es el siguiente:
@@ -517,52 +507,85 @@ El histograma que corresponde a las ganancias del forward es el siguiente:
 \caption{Ganancias del forward}
 \end{figure}
 
-Así mismo, la probabilidad de obtener una \textbf{ganancia} utilizando un contrato forward es de: \Sexpr{prob_ganarf}. Con un nivel de confianza del \Sexpr{nca}\%, el VaR para la operación es de \Sexpr{VaRf}.
-<<kernel_ganan_forward, warning=FALSE, message=FALSE>>=
+En el caso de ejercer la opción, debe de considerarse el costo que implica la prima de la misma. A continuación, se procede a realizar el código que crea la distribución correspondiente junto con sus gráficas. 
+<<ganancia_neta_opcion, message=FALSE, warning=FALSE, fig.keep='none'>>=
+ganan_nets <- ganan - ct_tc
 
-desv_est2 <- sd(gananf)
+normitan <- ks.test(ganan_nets, pnorm(deseos))
 
-h <- (4*desv_est2^5/(3*(deseos)))^(1/5)
+clasesn <- round(sqrt(deseos))
+v_minn <- min(ganan_nets) 
+v_maxn <- max(ganan_nets)
+rangon <- v_maxn - v_minn
+deltan <- rangon / clasesn
 
-x <- seq((v_min2-desv_est2),(v_max2+desv_est2),rango2/10000)
-
-festf <- numeric(length(x))
-for(i in 1:(deseos)){
-  festf <- festf + kernel(gananf[i], deseos+1, h, x)
+#histograma de frec, acumulada opción
+intervn <- numeric()
+intervn[1] <- v_minn
+for(i in 2:(clasesn+1)){
+  intervn[i] <- intervn[i-1] + deltan
 }
 
-#plot(x,fest,type="l")
-wd2 <- as.data.frame(cbind(x, festf))
-ggplot(data = wd2, aes(x = x, y = festf)) + geom_line(col=I('brown'), size = 1.3) +
-  labs(title = 'Distribución de ganancias (Kernel)', x = 'Intervalo', y = 'Probabilidad')
-#plot(density(ganan))
+freq_acumn <- numeric()
+for(i in 1:length(intervn)){
+  freq_acumn[i] <- sum(ganan_nets<=intervn[i])/(deseos)
+}
 
-ganancia_espf <- festf%*%x/sum(festf) - nocional
+
+
+#Creación del histograma de frecuencias y función de probabilidad con el hist.
+freq_relfn<-numeric(clasesn)
+for (j in 1:deseos){
+  for (i in 2:length(intervn)){
+    if (ganan_nets[j]<=intervn[i] & ganan_nets[j]>intervn[i-1]){
+      freq_relfn[i-1]<-freq_relfn[i-1]+1
+    }
+  }
+}
+freq_relfn<-freq_relfn/sum(freq_relfn)
+# determinación del punto medio
+punt_mn <- (intervn[2:(clasesn+1)]+intervn[1:clasesn])/2
+
+FAn <- as.data.frame(cbind(intervn,freq_acumn))
+#plot(interv,freq_acum,type="l")
+gggn <- as.data.frame(cbind(punt_mn, freq_relfn))
+
+ggplot(gggn)+geom_bar(aes(gggn$punt_mn,gggn$freq_relfn), stat="identity",width=deltan,
+                      fill = I('dark green'),color = I('white'))+
+  labs(title='Histograma de ganancias - opción neta', x="Ganancia", y="Frecuencia relativa")
+
+ggplot(data = FAn, aes(x = intervn, y = freq_acumn)) + geom_line(size = 1.2, colour = 'orange') + 
+  labs(title = 'Frecuencia acumulada de ganancias de opción neta', x = 'Ganancias', y = 'Frecuencia acumulada')
+
+
+
+ganan_neta <- freq_relfn %*% punt_mn
+# probabilidad de ganar
+prob_ganarn<-sum(ganan_nets>0)/deseos # probabilidad de ganar, osea ejercer. Obvi. :()
+prob_perden <- 1 - prob_ganarn # solamente se "pierde" la prima 
 
 @
-La ganancia esperada por la cobertura de un contrato forward es de: \Sexpr{ganancia_espf}. Cabe recordar que este movimiento fue una cobertura en la que se espera obtener un rendimiento de la cantidad ya mencionada. \par
-La distribución de probabilidad de las ganancias en este mismo derivado tiene la siguiente forma:
-
 \begin{figure}[H] \centering
-\includegraphics[width = 6cm]{figure/kernel_ganan_forward-1.pdf}
+\subfloat[$\text{Histograma de ganancias netas}$]{\includegraphics[width = 6cm]{figure/ganancia_neta_opcion-1.pdf}}
+\subfloat[$\text{Frecuencia acumulada de las ganancias netas}$]{\includegraphics[width = 6cm]{figure/ganancia_neta_opcion-2.pdf}}
 \caption{Ganancias del forward}
 \end{figure}
 <<auxiliares, message=FALSE, warning=FALSE, echo=FALSE>>=
-concepto <- c('Ganancia esperada', 'Prob. Ganar', 'Valor en Riesgo')
-derivados <- c('Opción Call', 'Forward')
+concepto <- c('Prob. Ganar')
+derivados <- c('Opción Call', 'Forward', "Neto de la opción call")
 @
 A continuación, se presentan la comparación de la ganancia esperada, probabilidad de ganar y el valor en riesgo para los dos derivados en cuestión. 
- \begin{table}[h!]
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{|l|l|l|}\hline
-
-  \textbf{Concepto}  & \textbf{\Sexpr{derivados[1]}}& \textbf{\Sexpr{derivados[2]}}   \\ \hline
+\begin{table}[h!]
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{|l|l|l|}\hline
   
-\Sexpr{concepto[1]}&\Sexpr{ganancia_esp} &\Sexpr{ganancia_espf}\\ \hline
-\Sexpr{concepto[2]}&\Sexpr{prob_ganar} &\Sexpr{prob_ganarf}\\ \hline
-\Sexpr{concepto[3]}&\Sexpr{VaR} &\Sexpr{VaRf} \\ \hline
-
-
-\end{tabular} 
-}
+    \textbf{Concepto}  & \textbf{\Sexpr{derivados[1]}  \\ \hline
+    
+    \Sexpr{concepto[1]} & \Sexpr{prob_ganarf}            \\ \hline
+    \Sexpr{concepto[2]} & \Sexpr{prob_ejerce}            \\ \hline
+    \Sexpr{concepto[3]} & \Sexpr{prob_ganarn}            \\ \hline
+  
+  
+  \end{tabular} 
+  }
 \end{table}

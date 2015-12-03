@@ -23,7 +23,7 @@ Dado los resultados anteriores, podemos hacernos las siguientes preguntas: Si el
 De este ejemplo es importante rescatar los conceptos b\'asicos de la \'algebra lineal (matrices de transici\'on) estos cálculos corresponden a todas las permutaciones en transiciones de un paso a otro (soleado-a-soleado (SaS), soleado-a-lluvioso (SaL) o lluvioso-a-lluvioso (LaL)) con sus respectivas probabilidades antes calculadas:
 
 
-\includegraphics[width=\textwidth]{transicion}
+%\includegraphics[width=\textwidth]{transicion}
 
 En la parte inferior de la imagen podemos ver como calcular la probabilidad de un estado futuro, (t+1 o t+2) dadas las probabilidades para cada estado (Soleado o lluvioso) en el tiempo cero (Hoy o $t_0$) como una simple multiplicaci\'on de matrices.
 Si continuamos prediciendo el clima de esta manera, eventualmente nos daremos cuenta de que el día n de predicci\'on ser\'a con un n muy grande (propongamos 30) y se establece en las siguientes probabilidades "De equilibrio:"
@@ -37,9 +37,9 @@ Si podemos construir dicha cadena, entonces podemos comenzar arbitrariamente des
 
 \section{Objetivo general}
 
-Proponer el uso de un derivado (ya sea una opción call o un contrato forward) para hacer una cobertura ante la volatilidad del tipo de cambio. Con ello, estimar ganancias esperadas y probabilidad de ganar al final del ejercicio con una opci\'on tipo call o un contrato forward, esto mediante la implementaci\'on de la metodolog\'ia Markov-Chain Monte Carlo. Se pretende, de igual manera, estimar la p\'erdida m\'axima o VaR para cada ejercicio. Por ende, es sencillo concluir que el objetivo general del proyecto, que consiste en la modelaci\'on del tipo de cambio, tendr\'a una modelaci\'on m\'as adecuada con el proceso MCMC.  
+Proponer el uso de un derivado (ya sea una opción call o un contrato forward) para hacer una cobertura ante la volatilidad del tipo de cambio. Con ello, estimar ganancias esperadas y probabilidad de ganar al final del ejercicio con una opci\'on tipo call o un contrato forward, esto mediante la implementaci\'on de la metodolog\'ia Markov-Chain Monte Carlo. 
 
 
 \section{Objetivos específicos}
-El presente trabajo tiene como finalidad el simular, con base en el algoritmo Metropolis-Hastings, trayectorias futuras del tipo de cambio 'D\'olar/Peso' con el objetivo de hacer un análisis de los resultados del uso de dos derivados: opción call y contrato forward. Los objetivos específicos son: Implementación de MCMC para generar diversas trayectorias del tipo de cambio, proponer el uso de una opción call (con un precio strike definido) o un forward (precio strike dado por el precio spot llevado a valor futuro), calular el histograma de ganancias para el uso de cada derivado, la ganancia esperada, la probabilidad de ganar y el valor en riesgo de utilizar los derivados.
+El presente trabajo tiene como finalidad el simular, con base en el algoritmo Metropolis-Hastings, trayectorias futuras del tipo de cambio 'D\'olar/Peso' con el objetivo de hacer un análisis de los resultados del uso de dos derivados: opción call y contrato forward. Los objetivos específicos son: Implementación de MCMC para generar diversas trayectorias del tipo de cambio, proponer el uso de una opción call (con un precio strike definido) o un forward (precio strike dado por el precio spot llevado a valor futuro), calcular el histograma de ganancias para el uso de cada derivado, la ganancia esperada, la probabilidad de ganar.
 
