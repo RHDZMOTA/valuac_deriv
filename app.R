@@ -82,7 +82,8 @@ server <-  function(input, output){
       geom_line(data = resultados[[2]], aes(x=ID, y=Promedios),color="dark blue", size=0.7)+
       geom_line(data = resultados[[3]], aes(ID, Precio_original), color="dark orange")+
       geom_hline(aes_string(yintercept=input$strike),color="dark red",size=0.7)+
-      geom_hline(aes_string(yintercept=resultados2[[1]]),color="dark blue",size=0.7)
+      geom_hline(aes_string(yintercept=resultados2[[1]]),color="dark blue",size=0.7)+
+      theme(legend.position="none")
   })
   
   # gráfico de opciones
