@@ -1,7 +1,7 @@
 # código para obtener datos
 #setwd("~/GitHub/valuac_deriv")
 library(Quandl)
-inter_t <- numeric()
+#inter_t <- numeric()
 if(exists("inter_t")==1){
   flag <- 1
   }else{
