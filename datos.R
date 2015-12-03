@@ -1,6 +1,11 @@
 # código para obtener datos
 library(Quandl)
 
+if(exists("inter_t")==1){
+  flag <- 1
+  }else{
+  flag <- 0}
+
 # intervalo de interés (1 año : 365 días)
 inter_t <- c(toString(as.Date(as.numeric(Sys.Date())-365)),  
              toString(as.Date(Sys.Date())))
@@ -21,8 +26,10 @@ download.file(url2,"tiie91.csv")
 download.file(url3,"tbill91.csv")
 
 #leer variables de interés 
-tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
-tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
+if(flag == 0){
+  tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
+  tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
+}
 
 r <- tiie91$Value[1]/100
 rd <- tiie91$Value[1]/100
