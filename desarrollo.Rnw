@@ -171,7 +171,7 @@ Cabe mencionar que el primer paso de las trayectorias simuladas depende del últi
 #Generación de simulaciones (trayectorias)
 #El primer paso de las trayectorias depende del último dato real.
 # Los demás dependen del simulado anterior.
-days<-90  #días hasta el vencimiento o pago de proveedores 
+ 
 
 y_esti<-matrix(0, nrow=deseos, ncol=days)
 y_esti[, 1] <- RDRL(rend$Value[n-1],deseos, x, fest, interv, freq_rel, freq_acum)
@@ -316,7 +316,7 @@ Dicho contrato es un derivado financiero en el cual dos partes se comprometen a 
 ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
 
 s0 <- s_estiff[1,2]
-k  <- 16.35 #s0*exp(r*days/252)
+k  <- 16.15 #s0*exp(r*days/252)
 kf <- s0*exp(r*days/252)
 sigma <- sd(rend$Value)*sqrt(252)
 d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))
@@ -347,10 +347,25 @@ ggplot()+
        x = 'Días', y = 'USD / MXN')+ 
   theme(legend.position="none")
 
-concepto <- c('Black-Scholes', 'Simulación', 'Black-Scholes foreign exchange rate')
+concepto1 <- c('Black-Scholes', 'Simulación', 'Black-Scholes foreign exchange rate')
 titulo <- 'Prima de la opción call'
 @
 
+Se presenta la valuación de opciones, se muestra una tabla comparativa de las distintas primas ya descritas anteriormente exceptuando la de las simulaciones pues se calculará en párrafos posteriores.
+
+\begin{table}[h!]
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|l|l|}\hline
+
+  \textbf{Concepto}  & \textbf{\Sexpr{titulo}}  \\ \hline
+  
+  \Sexpr{concepto1[1]}&  \Sexpr{ct_bs}   \\ \hline
+  \Sexpr{concepto1[3]}&  \Sexpr{ct_tc}   \\ \hline
+
+
+    \end{tabular} 
+                            }
+\end{table}
 Se muestra entonces la gráfica de las trayectorias simuladas junto con los precios strike determinados para la opción y el forward. 
 
 
@@ -413,6 +428,7 @@ prob_perde <- 1 - prob_ejerce # solamente se "pierde" la prima
 
 
 @
+
 El histograma que corresponde a las ganancias de la opción es el siguiente:
 
 \begin{figure}[H] \centering
@@ -535,7 +551,8 @@ gggn <- as.data.frame(cbind(punt_mn, freq_relfn))
 
 ggplot(gggn)+geom_bar(aes(gggn$punt_mn,gggn$freq_relfn), stat="identity",width=deltan,
                       fill = I('dark green'),color = I('white'))+
-  labs(title='Histograma de ganancias - opción neta', x="Ganancia", y="Frecuencia relativa")
+  labs(title='Histograma de ganancias - opción neta',
+       x="Ganancia", y="Frecuencia relativa")
 
 ggplot(data = FAn, aes(x = intervn, y = freq_acumn)) + geom_line(size = 1.2, colour = 'orange') + 
   labs(title = 'Frecuencia acumulada de ganancias de opción neta', x = 'Ganancias', y = 'Frecuencia acumulada')
@@ -556,37 +573,23 @@ prob_perden <- 1 - prob_ganarn # solamente se "pierde" la prima
 \end{figure}
 
 <<auxiliares, message=FALSE, warning=FALSE, echo=FALSE>>=
-concepto <- c('Prob. Ganar')
-derivados <- c('Opción Call', 'Forward', "Neto de la opción call")
-source('libreta.R')
+derivados <- c('Prob. Ganar', 'Valor esperado')
+concepto <- c('Forward', 'Opción Call', "Neto de la opción call", "Ahorro implícito")
+diferencia_primas <- ct_rdrl - ct_tc
+#source("libreta.R")
 @
-Posteriormente se muestra una tabla comparativa de las distintas primas ya descritas anteriormente exceptuando la de las simulaciones pues se calculará en párrafos posteriores.
 
-\begin{table}[h!]
-  \resizebox{\textwidth}{!}{%
-    \begin{tabular}{|l|l|}\hline
-
-  \textbf{Concepto}  & \textbf{\Sexpr{titulo}}  \\ \hline
-  
-  \Sexpr{concepto[1]}&  \Sexpr{ct_bs}   \\ \hline
-  \Sexpr{concepto[2]}&  \Sexpr{ct_rdrl} \\ \hline
-  \Sexpr{concepto[3]}&  \Sexpr{ct_tc}   \\ \hline
-
-
-    \end{tabular} 
-                            }
-\end{table}
-
-A continuación, se presentan la comparación de la ganancia esperada, probabilidad de ganar y el valor en riesgo para los dos derivados en cuestión. 
+A continuación, se presentan la comparación de la ganancia esperada y probabilidad de ganar 
 \begin{table}[h!]
   \resizebox{\textwidth}{!}{%
   \begin{tabular}{|l|l|l|}\hline
   
-    \textbf{Concepto}  & \textbf{\Sexpr{derivados[1]}  \\ \hline
+    \textbf{Concepto}  & \textbf{\Sexpr{derivados[1]}} & \textbf{\Sexpr{derivados[2]}}\\ \hline
     
-    \Sexpr{concepto[1]} & \Sexpr{prob_ganarf}            \\ \hline
-    \Sexpr{concepto[2]} & \Sexpr{prob_ejerce}            \\ \hline
-    \Sexpr{concepto[3]} & \Sexpr{prob_ganarn}            \\ \hline
+    \Sexpr{concepto[1]} & \Sexpr{prob_ganarf} &   \Sexpr{gananf_neta}         \\ \hline
+    \Sexpr{concepto[2]} & \Sexpr{prob_ejerce} &   \Sexpr{ct_rdrl}             \\ \hline
+    \Sexpr{concepto[3]} & \Sexpr{prob_ganarn} &   \Sexpr{ganan_neta}          \\ \hline
+    \Sexpr{concepto[4]} & \Sexpr{diferencia_primas}&                           \\ \hline
   
   
   \end{tabular} 

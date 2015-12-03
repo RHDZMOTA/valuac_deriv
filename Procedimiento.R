@@ -58,7 +58,7 @@ ggplot(data = FA, aes(x = interv, y = freq_acum)) + geom_line(size = 1, colour =
   labs(title = 'Frecuencia acumulada de rendimientos', y = 'Frecuencia', x = 'Intervalos')
 
 
-deseos <- 100
+deseos <- 500
 y <- numeric()
 for(i in 1:deseos){
   u <- runif(1)
@@ -107,7 +107,7 @@ freq_rel<-freq_rel/sum(freq_rel)
 # Simulaciones  -----------------------------------------------------------
 #Generación de simulaciones (trayectorias)
 #El primer paso de las trayectorias depende del último dato real. Los demás dependen del simulado anterior.
-days<-60  #días hasta el vencimiento o pago de proveedores :()
+days<-90  #días hasta el vencimiento o pago de proveedores :()
 
 y_esti<-matrix(0, nrow=deseos, ncol=days)
 y_esti[, 1] <- RDRL(rend$Value[n-1],deseos, x, fest, interv, freq_rel, freq_acum)
@@ -198,7 +198,7 @@ ggplot()+
 ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
 
 s0 <- s_estiff[1,2]
-k  <- 16.35 #s0*exp(r*days/252)
+k  <- 16.15 #s0*exp(r*days/252)
 kf <- s0*exp(r*days/252)
 sigma <- sd(rend$Value)*sqrt(252)
 d1 <- (log(s0/k)+(r+sigma^2/2)*(days/252))/(sigma*sqrt(days/252))

@@ -15,7 +15,7 @@
 \usepackage{adjustbox}
 \usepackage[hyphens]{url}
 \usepackage{hyperref}
-\usepackage{cleveref}
+%\usepackage{cleveref}
 
 
 \parindent 0em

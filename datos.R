@@ -1,17 +1,17 @@
 # código para obtener datos
-setwd("~/GitHub/valuac_deriv")
+#setwd("~/GitHub/valuac_deriv")
 library(Quandl)
-
+inter_t <- numeric()
 if(exists("inter_t")==1){
   flag <- 1
   }else{
   flag <- 0}
 
 # intervalo de interés (1 año : 365 días)
-inter_t <- c(toString(as.Date(as.numeric(Sys.Date())-365)),  
-             toString(as.Date(Sys.Date())))
+inter_t <- c((Sys.Date())-365,  (Sys.Date()))
+            
 # el día de ayer
-ayer <- toString(as.Date(as.numeric(Sys.Date())-1))
+ayer <- Sys.Date()-1
 
 # URL para descargar datos
 url <- paste("https://www.quandl.com/api/v3/datasets/CURRFX/USDMXN.csv?start_date=",

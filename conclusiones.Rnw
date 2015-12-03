@@ -8,9 +8,11 @@ Se sabe que debido a la alta volatilidad y el alto riesgo que incluyen las opera
 
 De igual manera, con el presente trabajo pudimos llegar a la conlusi\'on de que la mayor probabilidad de ganancia fue dada por el contrato de tipo \emph{opción call}, con una probabilidad de \Sexpr{prob_ganarn} y un precio strike de \Sexpr{k}. Es necesario aclarar que debido a que este documento presenta resultados con base en simulaciones aleatorias que vienen dadas bajo la metodolog\'ia de Markov Chain Monte Carlo, existir\'a la posibilidad de que las probabilidades de ganancias puedan cambiar con el tiempo. Ahora bien, las probabilidades y las ganancias no solamente est\'an dadas por las simulaciones, ya que tomamos la serie de precios del tipo de cambio para cada tiempo $t$, es decir, se toma la serie de datos del último año en cuestión (hasta el día actual) y es por eso que cada movimiento de tiempo y ejecuci\'on de c\'odigo, se pueden presentar diferentes resultados.\par
 
+Se concluyó que la opción es mejor que el forward pues, aunque al momento de realizada la última simulación el futuro tuvo ligeramente mayor probabilidad de ganar que el neto de una opción, ésta tiene la oportunidad de determinar un precio de ejercicio con mayor facilidad y, la valuación hecha con \emph{Black-Scholes for exchange rates} dada por \Sexpr{ct_tc} es menor que la valuación \emph{real} de la opción dada por \Sexpr{ct_rdrl}, lo cual implica un \textbf{ahorro al mismo tiempo que se realiza una cobertura} de la diferencia de las cifras por el nocional a cubrir.
+
 Hasta la última realización de las simulaciones, se recomienda hacer uso del contrato opción tipo \emph{call}.
 
-\section{Trabajos Futuros, recomendaciones}
+\section{Trabajos futuros, recomendaciones}
 El presente trabajó mostró una manera más eficiente de crear simulaciones (en este caso trayectorias para el tipo de cambio USD/MXN) utilizando el método de Markov Chain Monte Carlo y no Simulación Monte Carlo normal como es lo más usual.
 Para trabajos posteriores, se puede hacer uso de este algoritmo para crear trayectorias más certeras debido a que esta metodología no asume una distribución de probabilidad específica, sino que se crea la propia con los datos en cuestión. Teniendo en cuenta esto, para futuros trabajos se propone, a partir de los resultados, an\'alisis y deducciones obtenidas, la creaci\'on de un algoritmo mediante el cual se pueda sugerir un $K$ o precio strike \'optimo y una vez obtenido el mismo, calcular de nueva cuenta probabilidades de ganancia y ganancia neta.
 

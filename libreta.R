@@ -3,8 +3,8 @@ library(ggplot2)
 library(Quandl)
 library(reshape2)
 library(timeSeries)
-# source("funciones.R")
-# source("datos.R")
+source("funciones.R")
+source("datos.R")
 
 rend$Value <- rend$Value - mean(rend$Value) + r/252
 
