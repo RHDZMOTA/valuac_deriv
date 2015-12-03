@@ -139,7 +139,7 @@ for (j in 1:(n-1)){
 }
 freq_rel<-freq_rel/sum(freq_rel)
 
-days<-90 
+days<-90
 @
 
 
@@ -573,7 +573,7 @@ Se presenta la valuación de opciones, se muestra una tabla comparativa de las di
   \textbf{Concepto}  & \textbf{\Sexpr{titulo}}  \\ \hline
   
   \Sexpr{concepto1[1]}&  \Sexpr{ct_bs}          \\ \hline
-  \Sexpr{concepto2[2]}&  \Sexpr{ct_rdrl_lib}    \\ \hline
+  \Sexpr{concepto1[2]}&  \Sexpr{ct_rdrl_lib}    \\ \hline
   \Sexpr{concepto1[3]}&  \Sexpr{ct_tc}          \\ \hline
 
 
