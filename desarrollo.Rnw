@@ -22,7 +22,7 @@ source("datos.R")
 Iniciando con el procedimiento, se obtienen los datos de la página \emph{Quandl}. Se muestran además gráficas del tipo de cambio desde un año atrás hasta el día actual. 
 
 
-<<obtencion, message=FALSE, warning=FALSE, fig.keep='none'>>=
+<<obtencion, message=FALSE, warning=FALSE>>=
 tiie91 <- read.csv(file="tiie91.csv",header=TRUE,sep=",",na.strings=TRUE)
 tbill91  <- read.csv(file="tbill91.csv",header=TRUE,sep=",",na.strings=TRUE)
 
@@ -55,7 +55,7 @@ Para poder obtener la probabilidad correspondiente a cada uno de los rendimiento
 
 \chapter{Generación de aleatorios igualmente distribuidos}
 
-<<funcion_q, message=FALSE, warning=FALSE, fig.keep='none'>>=
+<<funcion_q, message=FALSE, warning=FALSE>>=
 
 ##Redefiniendo rendimientos para mundo libre de riesgo
 r <- tiie91$Value[1]/100
@@ -165,7 +165,7 @@ En una segunda etapa se realizarán \Sexpr{deseos} simulaciones correspondientes 
 Cabe mencionar que el primer paso de las trayectorias simuladas depende del último dato observado. Los demás dependen del simulado anterior y con esto se asegura continuar con el procedimiento de \emph{cadena de Markov}.
 
 
-<<simulaciones, warning=FALSE, message=FALSE, fig.keep = 'none'>>=
+<<simulaciones, warning=FALSE, message=FALSE>>=
 #Generación de simulaciones (trayectorias)
 
 #Generación de simulaciones (trayectorias)
@@ -197,7 +197,7 @@ s_estiff <- as.data.frame(s_estiff)
 
 \chapter{Resultados gráficos de trayectorias simuladas}
 
-<<graficas, warning=FALSE, message=FALSE, fig.keep = 'none'>>=
+<<graficas, warning=FALSE, message=FALSE>>=
 
 russo <- matrix(NA, nrow=(n+days), ncol = (deseos+2))
 russo[1:n,1] <- usdmxn$Rate
@@ -312,7 +312,7 @@ Para la elección de la prima en el cálculo de las ganancias fue tomada la corres
 
 Dicho contrato es un derivado financiero en el cual dos partes se comprometen a la realización de compra/venta de un activo subyacente (en este caso el tipo de cambio) en el tiempo de vencimiento T a un precio de ejercicio acordado $K$.El precio strike fue determinado de la siguiente manera: $$K = S_0e^{r(T-t)}$$. De esta manera el valor del contrato es cero eliminando el arbitraje.   
 
-<<funcion_ganancias, message=FALSE, warning=FALSE, fig.keep='none'>>=
+<<funcion_ganancias, message=FALSE, warning=FALSE>>=
 ST <- as.numeric(s_estiff[days+1, 2:(deseos+1)])
 
 s0 <- s_estiff[1,2]
@@ -351,21 +351,7 @@ concepto1 <- c('Black-Scholes', 'Simulación', 'Black-Scholes foreign exchange ra
 titulo <- 'Prima de la opción call'
 @
 
-Se presenta la valuación de opciones, se muestra una tabla comparativa de las distintas primas ya descritas anteriormente exceptuando la de las simulaciones pues se calculará en párrafos posteriores.
 
-\begin{table}[h!]
-  \resizebox{\textwidth}{!}{%
-    \begin{tabular}{|l|l|l|}\hline
-
-  \textbf{Concepto}  & \textbf{\Sexpr{titulo}}  \\ \hline
-  
-  \Sexpr{concepto1[1]}&  \Sexpr{ct_bs}   \\ \hline
-  \Sexpr{concepto1[3]}&  \Sexpr{ct_tc}   \\ \hline
-
-
-    \end{tabular} 
-                            }
-\end{table}
 Se muestra entonces la gráfica de las trayectorias simuladas junto con los precios strike determinados para la opción y el forward. 
 
 
@@ -376,7 +362,7 @@ Se muestra entonces la gráfica de las trayectorias simuladas junto con los preci
 
 \section{Probabilidad de ganancias}
 En este apartado se procede a la creación de la función de distribución de las ganancias considerando la prima correspondiente (en el caso de la opción). 
-<<histo_ganancias_opcion, warning=FALSE, message=FALSE, fig.keep='none'>>=
+<<histo_ganancias_opcion, warning=FALSE, message=FALSE>>=
 #hist(ganan)
 normita <- ks.test(ganan, pnorm(deseos))
 
@@ -438,7 +424,7 @@ El histograma que corresponde a las ganancias de la opción es el siguiente:
 \end{figure}
 
 A continuación, se presenta el procedimiento equivalente anterior para el caso del contrato \emph{forward}
-<<histo_ganan_forward, warning=FALSE, message=FALSE, fig.keep='none'>>=
+<<histo_ganan_forward, warning=FALSE, message=FALSE>>=
 #hist(ganan)
 normita2 <- ks.test(gananf, pnorm(deseos))
 
@@ -507,7 +493,7 @@ El histograma que corresponde a las ganancias del forward es el siguiente:
 \end{figure}
 
 En el caso de ejercer la opción, debe de considerarse el costo que implica la prima de la misma. A continuación, se procede a realizar el código que crea la distribución correspondiente junto con sus gráficas. 
-<<ganancia_neta_opcion, message=FALSE, warning=FALSE, fig.keep='none'>>=
+<<ganancia_neta_opcion, message=FALSE, warning=FALSE>>=
 ganan_nets <- ganan - ct_tc
 
 normitan <- ks.test(ganan_nets, pnorm(deseos))
@@ -576,12 +562,28 @@ prob_perden <- 1 - prob_ganarn # solamente se "pierde" la prima
 derivados <- c('Prob. Ganar', 'Valor esperado')
 concepto <- c('Forward', 'Opción Call', "Neto de la opción call", "Ahorro implícito")
 diferencia_primas <- ct_rdrl - ct_tc
-#source("libreta.R")
+source("libreta.R")
 @
+Se presenta la valuación de opciones, se muestra una tabla comparativa de las distintas primas ya descritas anteriormente exceptuando la de las simulaciones pues se calculará en párrafos posteriores.
+
+\begin{table}[h!]
+% \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|l|l|}\hline
+
+  \textbf{Concepto}  & \textbf{\Sexpr{titulo}}  \\ \hline
+  
+  \Sexpr{concepto1[1]}&  \Sexpr{ct_bs}          \\ \hline
+  \Sexpr{concepto2[2]}&  \Sexpr{ct_rdrl_lib}    \\ \hline
+  \Sexpr{concepto1[3]}&  \Sexpr{ct_tc}          \\ \hline
+
+
+    \end{tabular} 
+   %                         }
+\end{table}
 
 A continuación, se presentan la comparación de la ganancia esperada y probabilidad de ganar 
 \begin{table}[h!]
-  \resizebox{\textwidth}{!}{%
+ % \resizebox{\textwidth}{!}{%
   \begin{tabular}{|l|l|l|}\hline
   
     \textbf{Concepto}  & \textbf{\Sexpr{derivados[1]}} & \textbf{\Sexpr{derivados[2]}}\\ \hline
@@ -593,7 +595,7 @@ A continuación, se presentan la comparación de la ganancia esperada y probabilid
   
   
   \end{tabular} 
-  }
+  %}
 \end{table}
 
 

@@ -92,7 +92,7 @@ Dr. Juan Diego \textsc{Sánchez Torres} % Supervisor's Name
 %----------------------------------------------------------------------------------------
 
 \includegraphics[height=3.4cm]{figure/iteso.jpg}% Include a department/university logo - this will require the graphicx package
- 
+  
 %----------------------------------------------------------------------------------------
 
   \vfill % Fill the rest of the page with whitespace

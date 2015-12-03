@@ -202,5 +202,5 @@ punt_m <- (interv[2:(clases+1)]+interv[1:clases])/2
 #       ,binwidth=delta)
 
 
-ct_rdrl <- freq_rel %*% punt_m
+ct_rdrl_lib <- freq_rel %*% punt_m
 
