@@ -2,7 +2,7 @@
 \Sexpr{set_parent('code_master.Rnw')}
 
 
-\chapter{Introducción}
+\chapter{Introducci\'on}
 Dentro de los procesos estoc\'asticos, existen diferentes m\'etodos para calcular la probabilidad de que cierto evento suceda con base en diferentes supuestos y dentro de los mismos procesos estoc\'asticos, existe un tipo de m\'etodo, en el cual el resultado del evento futuro depende del evento inmediatamente anterior; estas son las cadenas de Markov. El ejemplo m\'as trivial para explicar una cadena de Markov es en cual catalogamos el clima en solamente con dos posibles resultados: Que el clima el d\'ia de mañana sea soleado o sea lluvioso, donde la variable independiente ser\'ia el clima el d\'ia de hoy, soleado. Con base en esta informaci\'on (que es el evento inmediato anterior) tenemos las siguientes probabilidades:
 Probabilidad (mañana est\'e soleado | Dado que hoy es lluvioso ) = 0.50 Entonces, dado que el d\'ia de mañana puede ser soleado o lluvioso, concluimos que: Probabilidad (mañana lluvioso | Dado que hoy es lluvioso) = 0.50 Similarmente: Probabilidad (Mañana lluvioso | Dado que hoy est\'a soleado ) = 0.10 Por lo tanto: Probabilidad (mañana soleado | Dado que hoy est\'a soleado ) = 0.90
 Las cuatro probabilidades anteriores pueden ser representadas como una matriz de transici\'on, la cual representa las probabilidades de que el clima se mueva de un estado a otro de la siguiente manera:
