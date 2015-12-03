@@ -29,17 +29,20 @@ ui <- fluidPage(
             
            # determinaciÃ³n arbitraria del precio strike
            numericInput(inputId = "strike", label="Precio strike (k)", 
-                        min = 0, max = 100, value = 16.65,step = 0.01),
+                        min = 0, max = 100, value = 16.15,step = 0.01),
            sliderInput(inputId = "time",
                        label="DÃ­as a simular",
                        value=30, min=1, max=100),
            plotOutput(outputId="gr"),
+           textOutput(outputId = "datos"),
            fluidRow(
              column(6,
                     "Opciones",
                     fluidRow(
                       column(6, 
-                             "La siguiente grÃ¡fica muestra las ganancias obtenidas por un contrato de opciÃ³n tipo call en el cual el usuario fija un precio de ejercicio (strike)."
+                             "La siguiente grÃ¡fica muestra las ganancias obtenidas por un 
+                             contrato de opciÃ³n tipo call en el cual el usuario fija un precio 
+                             de ejercicio (strike)."
                              ),
                       column(6,
                              "GrÃ¡fico"),
@@ -50,7 +53,9 @@ ui <- fluidPage(
                     "Forward (futuros)",
                     fluidRow(
                       column(6, 
-                             "La siguiente grÃ¡fica muestra las ganancias obtenidas por un contrato forward en el cual se establece el precio de ejercicio (strike) como el valor futuro del precio de hoy del activo subyacente."
+                             "La siguiente grÃ¡fica muestra las ganancias obtenidas por un 
+                             contrato forward en el cual se establece el precio de ejercicio 
+                             (strike) como el valor futuro del precio de hoy del activo subyacente."
                             ),
                       column(6,
                              "GrÃ¡fico"),
@@ -60,12 +65,15 @@ ui <- fluidPage(
            )
              )
            )
+   # column(12,)
     )
 )
 
 
 
 server <-  function(input, output){
+  
+  # gráfico de trayectorias
   output$gr <- renderPlot({
     resultados <- loque(input$time)
     resultados2 <- loque2(resultados[[4]],input$strike, input$time)
@@ -76,7 +84,8 @@ server <-  function(input, output){
       geom_hline(aes_string(yintercept=input$strike),color="dark red",size=0.7)+
       geom_hline(aes_string(yintercept=resultados2[[1]]),color="dark blue",size=0.7)
   })
-  output$yolo <- renderText(paste("Tipo", class(input$strike)))
+  
+  # gráfico de opciones
   output$opci <- renderPlot({
     resultados <- loque(input$time)
     resultados2 <- loque2(resultados[[4]],input$strike, input$time)
@@ -84,6 +93,8 @@ server <-  function(input, output){
       geom_line(data = resultados2$Ganan_opcion, aes(x=ST, y=ganan))+
       geom_hline(aes_string(yintercept = 0), color = 'green')
   })
+  
+  # gráfico de futuros 
   output$futu <- renderPlot({
     resultados <- loque(input$time)
     resultados2 <- loque2(resultados[[4]],input$strike, input$time)
@@ -92,6 +103,27 @@ server <-  function(input, output){
       geom_hline(aes_string(yintercept = 0), color = 'green')
   })
   
+  # datos y ben
+  output$datos <- renderText({resultados <- loque(input$time)
+                              resultados2 <- loque2(resultados[[4]],input$strike, input$time)
+                              paste("El costo de la prima para una opción de tipo de cambio es calculada mediante
+                                    una variante de la ecuación de Black-Scholes. En este caso, la prima tiene un
+                                    valor de",resultados2[[5]][3]," MXN por dólar. Esta cantidad representa el valor
+                                    presente del valor esperado de la ganancia de la opción (diferencia entre precio
+                                    strike) bajo la perspectiva que el activo subyacente genera al menos el rendimiento
+                                    libre de riesgo. Se procede a simular la realización del tipo
+                                    de cambio utilizando n trayectorias de valores aleatorios cuya distribución se
+                                    asemeja a la distribución empírica del rendimiento logarítmico. 
+                                    Con esta simulación, aplicando específicamente la metodología Markov Chain 
+                                    Monte Carlo y bajo el algoritmo de Independent Metropolis Hasting se evalúa el desempeño
+                                    de una cobertura financiera con derivado opción call y forward. El forward presenta un 
+                                    valor esperado de ganancia por unidad de ", resultados2[[5]][6], " y una probabilidad 
+                                    de ", resultados2[[5]][7], "de obtener una ganancia al vencimiento. De forma análoga,
+                                    la opción presenta un valor esperado de ganancia por unidad sin contar la prima de ",
+                                    resultados2[[5]][1], ", considerando el pago de la prima este valor se ajusta a ",
+                                    resultados2[[5]][4], ", con una probabilidad de ejercer de ", resultados2[[5]][2], " y
+                                    una probabilidad de obtener ganancia neta de ", resultados2[[5]][4], ".")
+                              })
   
   }
 
