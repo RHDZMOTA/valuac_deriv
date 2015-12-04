@@ -21,7 +21,7 @@ ui <- fluidPage(
              p("Asignatura: Finanzas cuantitativas"),
              h3("Descripción general"),
              p("A continuación se presenta la serie de tiempo diaria de la paridad de la moneda mexicana y el
-               dÃ³lar estadunidense con 365 datos histÃ³ricos. La metodología empleada se basa en calcular 
+               dólar estadunidense con 365 datos históricos. La metodología empleada se basa en calcular 
                trayectorias mediante la determinación de la distribución real del rendimiento logarítmico  
                de los datos para así obtener una buena estimación del tipo de cambio a 90 días. Con esta 
                información se evalúa el rendimiento de estrategias propuestas con opciones tipo call y 
