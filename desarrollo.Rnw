@@ -139,7 +139,7 @@ for (j in 1:(n-1)){
 }
 freq_rel<-freq_rel/sum(freq_rel)
 
-days<-90
+days <- 90
 @
 
 
@@ -567,6 +567,7 @@ source("libreta.R")
 Se presenta la valuación de opciones, se muestra una tabla comparativa de las distintas primas ya descritas anteriormente exceptuando la de las simulaciones pues se calculará en párrafos posteriores.
 
 \begin{table}[h!]
+\centering
 % \resizebox{\textwidth}{!}{%
     \begin{tabular}{|l|l|l|}\hline
 
@@ -582,7 +583,9 @@ Se presenta la valuación de opciones, se muestra una tabla comparativa de las di
 \end{table}
 
 A continuación, se presentan la comparación de la ganancia esperada y probabilidad de ganar 
-\begin{table}%[h!]
+
+\begin{table}[H]
+\centering
  % \resizebox{\textwidth}{!}{%
   \begin{tabular}{|l|l|l|}\hline
   

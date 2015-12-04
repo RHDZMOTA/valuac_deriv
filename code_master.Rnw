@@ -49,7 +49,7 @@
 %----------------------------------------------------------------------------------------
 
 \HRule \\[2cm]
-{ \huge \bfseries Proyecto 02: Valuación de derivados mediante Markov-Chain Monte Carlo}\\[2cm] % Title of your document
+{ \huge \bfseries Proyecto 02: Valuación y desempeño de derivados mediante Markov-Chain Monte Carlo}\\[2cm] % Title of your document
 \HRule \\[2cm]
  
 %----------------------------------------------------------------------------------------
